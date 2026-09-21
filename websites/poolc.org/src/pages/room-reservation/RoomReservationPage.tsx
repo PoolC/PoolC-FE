@@ -588,7 +588,7 @@ export default function RoomReservationPage() {
   const [currentEvent, setCurrentEvent] = useState<RoomCalendarEvent | undefined>();
   const [reservationDraft, setReservationDraft] = useState<RoomReservationDraft | null>(null);
   const [reservationPurpose, setReservationPurpose] = useState('');
-  const [sharedUseAllowed, setSharedUseAllowed] = useState(false);
+  const [sharedUseAllowed, setSharedUseAllowed] = useState(true);
   const [calendarView, setCalendarView] = useState<View>(getInitialCalendarView);
 
   const { data: eventResponse, refetch: refetchEvent } = useAppQuery({
@@ -634,7 +634,7 @@ export default function RoomReservationPage() {
 
     setReservationDraft({ start: slotInfo.start, end: slotInfo.end });
     setReservationPurpose('');
-    setSharedUseAllowed(false);
+    setSharedUseAllowed(true);
     setIsCreateModalOpen(true);
   };
 
