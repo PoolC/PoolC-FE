@@ -7,6 +7,6 @@ export type RoomPostRequest = {
     date?: string;
     end?: LocalTimeReq;
     purpose?: string;
+    sharedUseAllowed?: boolean;
     start?: LocalTimeReq;
 };
-
