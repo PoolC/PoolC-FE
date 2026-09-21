@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { Button, Modal } from 'antd';
+import { Button, Input, Modal, Radio } from 'antd';
 import { Calendar, dayjsLocalizer, Event, SlotInfo, ToolbarProps, View, Views } from 'react-big-calendar';
 import { useState } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -160,7 +160,11 @@ const useStyles = createStyles(({ css }) => ({
     }
 
     .rbc-time-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
       border-bottom: 1px solid #e6dfd4;
+      background: #ffffff;
     }
 
     .rbc-time-header-content {
@@ -237,8 +241,21 @@ const useStyles = createStyles(({ css }) => ({
       border: 0 !important;
       border-radius: 6px;
       background-color: ${colors.mint[2]};
-      box-shadow: 0 4px 12px rgba(71, 190, 155, 0.14);
+      box-shadow:
+        inset 0 -2px rgba(255, 255, 255, 0.42),
+        0 4px 12px rgba(71, 190, 155, 0.14);
       padding: 0;
+      cursor: pointer;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          inset 0 -2px rgba(255, 255, 255, 0.42),
+          0 7px 16px rgba(71, 190, 155, 0.24);
+      }
     }
 
     .rbc-event-label {
@@ -297,7 +314,94 @@ const useStyles = createStyles(({ css }) => ({
     font-weight: 500;
     margin-top: 10px;
   `,
+  reservationDetail: css`
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 4px 0 2px;
+  `,
+  reservationDetailTitle: css`
+    margin: 0;
+    color: ${colors.brown[1]};
+    font-size: 1.28rem;
+    font-weight: 800;
+    line-height: 1.35;
+    word-break: keep-all;
+  `,
+  reservationDetailTime: css`
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 16px;
+    border-radius: 8px;
+    background: ${colors.mint[0]};
+    color: ${colors.brown[1]};
+
+    span {
+      color: ${colors.brown[0]};
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    strong {
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+  `,
+  reservationDetailList: css`
+    display: grid;
+    gap: 14px;
+    margin: 0;
+
+    > div {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+    }
+
+    dt {
+      color: ${colors.brown[0]};
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    dd {
+      min-width: 0;
+      margin: 0;
+      color: ${colors.brown[1]};
+      font-weight: 700;
+    }
+  `,
+  reservationMode: css`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  `,
+  reservationModeBadge: css`
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: ${colors.mint[0]};
+    color: ${colors.mint[3]};
+    font-size: 0.78rem;
+    font-weight: 800;
+
+    &[data-shared='false'] {
+      background: #f5f2ed;
+      color: ${colors.brown[0]};
+    }
+  `,
+  reservationModeDescription: css`
+    color: ${colors.brown[0]};
+    font-size: 0.8rem;
+    font-weight: 500;
+  `,
   reservationEvent: css`
+    position: relative;
     display: flex;
     height: 100%;
     min-height: 0;
@@ -306,6 +410,10 @@ const useStyles = createStyles(({ css }) => ({
     padding: 8px 10px;
     color: #ffffff;
     box-sizing: border-box;
+
+    &[data-shared='false'] {
+      color: ${colors.brown[1]};
+    }
 
     ${media.mobile} {
       gap: 2px;
@@ -322,6 +430,7 @@ const useStyles = createStyles(({ css }) => ({
       padding: 4px 8px;
       white-space: nowrap;
     }
+
   `,
   reservationTime: css`
     flex: 0 0 auto;
@@ -386,12 +495,66 @@ const useStyles = createStyles(({ css }) => ({
       font-size: 0.6rem;
     }
   `,
+  reservationHeader: css`
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  `,
+  reservationSharedLabel: css`
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.9;
+
+    &::before {
+      width: 1px;
+      height: 12px;
+      margin-right: 6px;
+      background: rgba(255, 255, 255, 0.52);
+      content: '';
+    }
+
+    [data-tiny='true'] & {
+      font-size: 0.62rem;
+    }
+
+    [data-shared='false'] & {
+      color: ${colors.brown[1]};
+      opacity: 0.84;
+
+      &::before {
+        background: rgba(76, 55, 34, 0.28);
+      }
+    }
+
+  `,
+  reservationFormLabel: css`
+    display: block;
+    margin: 20px 0 8px;
+    color: ${colors.brown[1]};
+    font-size: 0.88rem;
+    font-weight: 800;
+  `,
+  reservationHelp: css`
+    margin: 8px 0 0;
+    color: ${colors.brown[0]};
+    font-size: 0.82rem;
+    line-height: 1.5;
+  `,
 }));
 
 type RoomEventResource = {
   id?: number | string;
   purpose?: string;
   host?: string;
+  sharedUseAllowed?: boolean;
 };
 
 type RoomCalendarEvent = Event & {
@@ -399,6 +562,11 @@ type RoomCalendarEvent = Event & {
 };
 
 type RoomToolbarProps = ToolbarProps<RoomCalendarEvent>;
+
+type RoomReservationDraft = {
+  start: Date;
+  end: Date;
+};
 
 const getInitialCalendarView = () => {
   if (typeof window !== 'undefined' && window.matchMedia(`(max-width: ${breakpoints.compact - 1}px)`).matches) {
@@ -416,7 +584,11 @@ export default function RoomReservationPage() {
   const [startDate, setStartDate] = useState(() => dayjs().startOf('week').format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(dayjs().endOf('week').format('YYYY-MM-DD'));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<RoomCalendarEvent | undefined>();
+  const [reservationDraft, setReservationDraft] = useState<RoomReservationDraft | null>(null);
+  const [reservationPurpose, setReservationPurpose] = useState('');
+  const [sharedUseAllowed, setSharedUseAllowed] = useState(true);
   const [calendarView, setCalendarView] = useState<View>(getInitialCalendarView);
 
   const { data: eventResponse, refetch: refetchEvent } = useAppQuery({
@@ -445,6 +617,7 @@ export default function RoomReservationPage() {
         id: el.id,
         purpose: el.purpose,
         host: el.host,
+        sharedUseAllowed: el.sharedUseAllowed,
       },
     })) ?? [];
 
@@ -453,26 +626,26 @@ export default function RoomReservationPage() {
     const start = dayjs(slotInfo.start);
     const end = dayjs(slotInfo.end);
 
-    for (const event of eventList) {
-      const eventStart = dayjs(event.start);
-      const eventEnd = dayjs(event.end);
-
-      if (start.isBetween(eventStart, eventEnd, undefined, '[)')) {
-        message.error('다른 행사와 시간이 겹칠 수 없습니다.');
-        return;
-      }
-
-      if (end.isBetween(eventStart, eventEnd, undefined, '(]')) {
-        message.error('다른 행사와 시간이 겹칠 수 없습니다.');
-        return;
-      }
-    }
-
-    const purpose = window.prompt('행사명(예. 웹세미나) 입력해주세요.');
-
-    if (!purpose) {
+    const hasOverlap = eventList.some((event) => start.isBefore(dayjs(event.end)) && end.isAfter(dayjs(event.start)));
+    if (hasOverlap) {
+      message.error('이미 예약된 시간입니다. 출입 가능 예약이면 예약자에게 문의해 함께 이용할 수 있습니다.');
       return;
     }
+
+    setReservationDraft({ start: slotInfo.start, end: slotInfo.end });
+    setReservationPurpose('');
+    setSharedUseAllowed(true);
+    setIsCreateModalOpen(true);
+  };
+
+  const onCreateReservation = () => {
+    if (!reservationDraft || !reservationPurpose.trim()) {
+      message.error('사용 목적을 입력해주세요.');
+      return;
+    }
+
+    const start = dayjs(reservationDraft.start);
+    const end = dayjs(reservationDraft.end);
 
     const startTime = `${start.hour().toString().padStart(2, '0')}:${start.minute().toString().padStart(2, '0')}` as unknown as LocalTimeReq;
     const endTime = `${end.hour().toString().padStart(2, '0')}:${end.minute().toString().padStart(2, '0')}` as unknown as LocalTimeReq;
@@ -482,14 +655,17 @@ export default function RoomReservationPage() {
         roomPostRequest: {
           start: startTime,
           end: endTime,
-          purpose,
+          purpose: reservationPurpose.trim(),
+          sharedUseAllowed,
           // start와 end는 날짜가 동일하므로 어느 것을 사용해도 무관
           date: start.format('YYYY-MM-DD'),
         },
       },
       {
         onSuccess() {
-          message.success('동아리방이 예약되었습니다.');
+          message.success(sharedUseAllowed ? '출입 가능한 동아리방 예약이 등록되었습니다.' : '단독 사용 동아리방 예약이 등록되었습니다.');
+          setIsCreateModalOpen(false);
+          setReservationDraft(null);
           refetchEvent();
         },
       },
@@ -520,51 +696,59 @@ export default function RoomReservationPage() {
   const onModalOk = () => setIsModalOpen(false);
 
   const onDelete = () => {
-    const isConfirmed = confirm('해당 행사를 정말 삭제하시겠습니까?');
-
-    if (!isConfirmed) {
+    const reservationId = currentEvent?.resource?.id;
+    if (!reservationId) {
       return;
     }
-
-    deleteReservation(
-      {
-        reservationId: currentEvent?.resource?.id,
+    Modal.confirm({
+      title: '예약 삭제',
+      content: '이 동아리방 예약을 정말 삭제할까요?',
+      okText: '삭제',
+      cancelText: '취소',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        deleteReservation(
+          { reservationId },
+          {
+            onSuccess() {
+              message.success('동아리방 예약을 삭제했습니다.');
+              setIsModalOpen(false);
+              setCurrentEvent(undefined);
+              refetchEvent();
+            },
+          },
+        );
       },
-      {
-        onSuccess() {
-          message.success('해당 행사가 삭제되었습니다.');
-          setIsModalOpen(false);
-          setCurrentEvent(undefined);
-          refetchEvent();
-        },
-      },
-    );
+    });
   };
 
   const ReservationEvent = ({ event }: { event: RoomCalendarEvent }) => {
     const durationMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute');
     const isTiny = durationMinutes <= 30;
     const isCompact = durationMinutes < 60;
-    const shouldHideHost = isTiny;
+    const shouldHideHost = durationMinutes <= 60;
     const start = dayjs(event.start);
     const end = dayjs(event.end);
-    const startMeridiem = start.format('A');
-    const endMeridiem = end.format('A');
-    const timeText = startMeridiem === endMeridiem ? `${start.format('A h:mm')} - ${end.format('h:mm')}` : `${start.format('A h:mm')} - ${end.format('A h:mm')}`;
+    const timeText = `${start.format('HH:mm')}–${end.format('HH:mm')}`;
     const purpose = event.resource?.purpose || event.title;
 
     if (isTiny) {
       return (
-        <div className={styles.reservationEvent} data-compact data-tiny>
-          <span className={styles.reservationTime}>{timeText}</span>
-          <span className={styles.reservationPurpose}> · {purpose}</span>
+        <div className={styles.reservationEvent} data-compact data-tiny data-shared={event.resource?.sharedUseAllowed === true}>
+          <div className={styles.reservationHeader}>
+            <span className={styles.reservationTime}>{timeText}</span>
+            <span className={styles.reservationSharedLabel}>{event.resource?.sharedUseAllowed ? '출입 가능' : '출입 불가'}</span>
+          </div>
         </div>
       );
     }
 
     return (
-      <div className={styles.reservationEvent} data-compact={isCompact}>
-        <span className={styles.reservationTime}>{timeText}</span>
+      <div className={styles.reservationEvent} data-compact={isCompact} data-shared={event.resource?.sharedUseAllowed === true}>
+        <div className={styles.reservationHeader}>
+          <span className={styles.reservationTime}>{timeText}</span>
+          <span className={styles.reservationSharedLabel}>{event.resource?.sharedUseAllowed ? '출입 가능' : '출입 불가'}</span>
+        </div>
         <span className={styles.reservationPurpose}>{purpose}</span>
         {!shouldHideHost && event.resource?.host && <span className={styles.reservationHost}>{event.resource.host}</span>}
       </div>
@@ -644,6 +828,11 @@ export default function RoomReservationPage() {
                   event: ReservationEvent,
                 }}
                 events={eventList}
+                eventPropGetter={(event: RoomCalendarEvent) => ({
+                  style: {
+                    backgroundColor: event.resource?.sharedUseAllowed ? colors.mint[2] : '#D8C7B2',
+                  },
+                })}
                 onSelectSlot={onSelectSlot}
                 onSelectEvent={onSelectEvent}
                 onRangeChange={onRangeChange}
@@ -656,26 +845,64 @@ export default function RoomReservationPage() {
         </PagePanel>
       </PageShell>
       <Modal
-        title="동방 예약행사"
+        title="동아리방 예약"
+        open={isCreateModalOpen}
+        okText="예약"
+        cancelText="취소"
+        onOk={onCreateReservation}
+        onCancel={() => {
+          setIsCreateModalOpen(false);
+          setReservationDraft(null);
+        }}
+      >
+        {reservationDraft && <p className={styles.eventTime}>{dayjs(reservationDraft.start).format('MM월 DD일 HH:mm')} - {dayjs(reservationDraft.end).format('HH:mm')}</p>}
+        <label className={styles.reservationFormLabel} htmlFor="reservation-purpose">사용 목적</label>
+        <Input id="reservation-purpose" value={reservationPurpose} onChange={(event) => setReservationPurpose(event.target.value)} placeholder="예: 웹세미나" autoFocus />
+        <span className={styles.reservationFormLabel}>사용 방식</span>
+        <Radio.Group value={sharedUseAllowed} onChange={(event) => setSharedUseAllowed(event.target.value)}>
+          <Radio value={false}>단독 사용</Radio>
+          <Radio value>출입 가능</Radio>
+        </Radio.Group>
+        <p className={styles.reservationHelp}>출입 가능으로 설정하면, 다른 회원도 별도 예약 없이 같은 시간에 동아리방을 이용할 수 있습니다.</p>
+      </Modal>
+      <Modal
+        title="동아리방 예약"
         open={isModalOpen}
         onOk={onModalOk}
         onCancel={onModalOk}
         footer={[
           <Button type="primary" onClick={onModalOk} key="confirm">
-            확인
+            닫기
           </Button>,
           <Button danger onClick={onDelete} key="delete">
             삭제
           </Button>,
         ]}
       >
-        <p className={styles.eventTitle}>{currentEvent?.resource?.purpose || currentEvent?.title}</p>
-        {currentEvent?.resource?.host && <p className={styles.eventTime}>예약자: {currentEvent.resource.host}</p>}
-        <p className={styles.eventTime}>
-          시작: {dayjs(currentEvent?.start).format('MM월 DD일 HH시 mm분')}
-          <br />
-          종료: {dayjs(currentEvent?.end).format('MM월 DD일 HH시 mm분')}
-        </p>
+        <article className={styles.reservationDetail}>
+          <h2 className={styles.reservationDetailTitle}>{currentEvent?.resource?.purpose || currentEvent?.title}</h2>
+          <div className={styles.reservationDetailTime}>
+            <span>{dayjs(currentEvent?.start).format('MM월 DD일')}</span>
+            <strong>{dayjs(currentEvent?.start).format('HH:mm')}–{dayjs(currentEvent?.end).format('HH:mm')}</strong>
+          </div>
+          <dl className={styles.reservationDetailList}>
+            <div>
+              <dt>예약자</dt>
+              <dd>{currentEvent?.resource?.host || '-'}</dd>
+            </div>
+            <div>
+              <dt>사용 방식</dt>
+              <dd className={styles.reservationMode}>
+                <span className={styles.reservationModeBadge} data-shared={currentEvent?.resource?.sharedUseAllowed === true}>
+                  {currentEvent?.resource?.sharedUseAllowed ? '출입 가능' : '단독 사용'}
+                </span>
+                <span className={styles.reservationModeDescription}>
+                  {currentEvent?.resource?.sharedUseAllowed ? '다른 회원 출입 가능' : '예약자만 출입 가능'}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </article>
       </Modal>
     </>
   );

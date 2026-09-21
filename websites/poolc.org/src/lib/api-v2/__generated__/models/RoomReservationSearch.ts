@@ -9,6 +9,6 @@ export type RoomReservationSearch = {
     host?: string;
     id?: number;
     purpose?: string;
+    sharedUseAllowed?: boolean;
     start?: LocalTimeRes;
 };
-

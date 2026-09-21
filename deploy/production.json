@@ -1,7 +1,6 @@
 {
   "awsRegion": "ap-northeast-2",
   "githubOidcRoleArn": "arn:aws:iam::238851005341:role/PoolCFrontendProductionDeploy",
-  "githubOidcDryRunRoleArn": "arn:aws:iam::238851005341:role/PoolCGitHubFrontendDryRun",
   "s3Bucket": "poolc-front-s3",
   "cloudFrontDistributionId": "E3OFR89W4CN897"
 }

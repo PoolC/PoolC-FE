@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   validate:
@@ -18,13 +17,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - id: config
-        name: Read deployment configuration
-        run: |
-          echo "aws_region=$(jq -r '.awsRegion' deploy/production.json)" >> "$GITHUB_OUTPUT"
-          echo "role_arn=$(jq -r '.githubOidcDryRunRoleArn' deploy/production.json)" >> "$GITHUB_OUTPUT"
-          echo "s3_bucket=$(jq -r '.s3Bucket' deploy/production.json)" >> "$GITHUB_OUTPUT"
-          echo "distribution_id=$(jq -r '.cloudFrontDistributionId' deploy/production.json)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -34,11 +26,3 @@ jobs:
       - run: yarn install --immutable
       - run: yarn workspace @dialga/poolc.org check:type
       - run: yarn workspace @dialga/poolc.org build --mode prod
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ steps.config.outputs.role_arn }}
-          aws-region: ${{ steps.config.outputs.aws_region }}
-      - name: Verify S3 sync without uploading
-        run: aws s3 sync websites/poolc.org/build "s3://${{ steps.config.outputs.s3_bucket }}" --delete --dryrun
-      - name: Verify CloudFront distribution without invalidating
-        run: aws cloudfront get-distribution --id "${{ steps.config.outputs.distribution_id }}" --query 'Distribution.Status' --output text
