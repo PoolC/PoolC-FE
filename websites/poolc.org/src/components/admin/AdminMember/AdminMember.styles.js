@@ -243,6 +243,15 @@ export const RemarksTrigger = styled.button`
   }
 `;
 
+export const RemarksCharacterCount = styled.div`
+  margin-top: 6px;
+  color: ${colors.brown[0]};
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+`;
+
 export const AdditionalRoleOptions = styled.div`
   display: grid;
   width: 100%;

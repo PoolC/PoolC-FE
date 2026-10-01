@@ -17,6 +17,7 @@ import {
   PendingActionButton,
   PendingActions,
   PendingDeleteButton,
+  RemarksCharacterCount,
   RoleCell,
   RoleSelect,
   RemarksTrigger,
@@ -105,14 +106,17 @@ const MemberRow = ({ member, roles, showPendingActions, onAcceptMember, onWithdr
         <Button key="save" type="primary" onClick={saveRemarks} loading={savingRemarks}>저장</Button>,
       ]}
     >
-      <Input.TextArea
-        value={remarksDraft}
-        onChange={(event) => setRemarksDraft(event.target.value)}
-        maxLength={1000}
-        autoSize={{ minRows: 6, maxRows: 14 }}
-        placeholder="회원 관련 비고를 입력하세요."
-        aria-label={`${member.name} 회원 비고 내용`}
-      />
+      <div>
+        <Input.TextArea
+          value={remarksDraft}
+          onChange={(event) => setRemarksDraft(event.target.value)}
+          maxLength={1000}
+          autoSize={{ minRows: 6, maxRows: 14 }}
+          placeholder="회원 관련 비고를 입력하세요."
+          aria-label={`${member.name} 회원 비고 내용`}
+        />
+        <RemarksCharacterCount>{remarksDraft.length} / 1000</RemarksCharacterCount>
+      </div>
     </Modal>
     <MemberListRow onClick={moveToMemberDetail}>
       <td>
