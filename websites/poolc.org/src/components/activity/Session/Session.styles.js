@@ -168,6 +168,7 @@ export const EmptySessionValue = styled.span`
 
 export const SessionEditActions = styled.div`
   display: flex;
+  gap: 8px;
   justify-content: flex-end;
   margin-top: -2px;
 

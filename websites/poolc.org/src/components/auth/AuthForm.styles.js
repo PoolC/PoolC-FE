@@ -83,10 +83,11 @@ export const StyledSelect = styled(Select)`
 `;
 
 export const WithdrawalButton = styled(SubmitButton)`
-  background-color: ${colors.red[1]};
+  background-color: ${colors.red[2]};
   margin-top: 1.5rem;
   &:hover {
-    background-color: ${colors.red[0]};
+    background-color: ${colors.red[2]};
+    opacity: 0.86;
   }
   &:disabled {
     background-color: ${colors.gray[2]};

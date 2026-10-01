@@ -267,13 +267,14 @@ export const StyledActionButton = styled(ActionButton)`
 
 export const StyledDeleteButton = styled(ActionButton)`
   margin: 0;
-  border: 1px solid ${colors.red[1]};
-  background-color: transparent;
-  color: ${colors.red[1]};
+  border: 1px solid ${colors.red[2]};
+  background-color: ${colors.red[2]};
+  color: #fff;
   box-shadow: none;
   transition: 0.2s;
   &:hover {
-    background-color: rgba(252, 118, 118, 0.12);
+    background-color: ${colors.red[2]};
+    opacity: 0.86;
     transition: 0.2s;
   }
 `;

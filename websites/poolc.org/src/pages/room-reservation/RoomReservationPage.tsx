@@ -874,7 +874,7 @@ export default function RoomReservationPage() {
           <Button type="primary" onClick={onModalOk} key="confirm">
             닫기
           </Button>,
-          <Button danger onClick={onDelete} key="delete">
+          <Button type="primary" danger onClick={onDelete} key="delete" style={{ backgroundColor: colors.red[2], borderColor: colors.red[2], color: '#fff' }}>
             삭제
           </Button>,
         ]}

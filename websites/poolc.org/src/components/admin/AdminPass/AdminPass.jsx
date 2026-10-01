@@ -41,6 +41,7 @@ const EXEMPTION_REASONS = {
   SUPER_ADMIN: '최고 관리자',
   ADMIN: '임원진',
   TECHNICIAN: '기여자',
+  GRADUATED_INACTIVE: '졸업 비활동',
   GRADUATED: '졸업회원',
   COMPLETE: '수료회원',
   INACTIVE: '한 학기 비활동',
@@ -49,7 +50,8 @@ const AUTOMATIC_EXEMPTION_ROLES = new Set(Object.keys(EXEMPTION_REASONS));
 
 const getExemptionReason = (member) => {
   if (!member.isExcepted) return '-';
-  return EXEMPTION_REASONS[member.member.role] || '관리자 지정';
+  const reasonRole = member.member.baseRole === 'GRADUATED_INACTIVE' ? member.member.baseRole : member.member.role;
+  return EXEMPTION_REASONS[reasonRole] || '관리자 지정';
 };
 
 const MemberRow = ({ member, minimumLimit, showExemptionReason, handleChangeExcepted, handleWithdraw, history }) => {

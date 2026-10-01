@@ -9,6 +9,8 @@ import { MENU } from '../../../constants/menus';
 import ActionButton from '../../../components/common/Buttons/ActionButton';
 import { CLIENT_ERROR, SUCCESS } from '../../../constants/statusCode';
 
+const isValidCapacity = (capacity) => Number.isInteger(Number(capacity)) && Number(capacity) > 0;
+
 const ActivityFormContainer = ({ match, history }) => {
   const { activityID } = match.params;
 
@@ -73,6 +75,11 @@ const ActivityFormContainer = ({ match, history }) => {
       onShowErrorModal();
       return;
     }
+    if (!isValidCapacity(capacity)) {
+      setErrorMessage('정원은 1명 이상의 정수로 입력해주세요.');
+      onShowErrorModal();
+      return;
+    }
     activityAPI
       .createActivity({
         title,
@@ -102,6 +109,11 @@ const ActivityFormContainer = ({ match, history }) => {
   const onUpdateActivity = ({ title, description, startDate, seminar, classHour, hour, capacity, tags, fileList }) => {
     if (!title || !description || !startDate || !classHour || !hour || !capacity || !tags) {
       setErrorMessage('모든 항목을 입력하세요');
+      onShowErrorModal();
+      return;
+    }
+    if (!isValidCapacity(capacity)) {
+      setErrorMessage('정원은 1명 이상의 정수로 입력해주세요.');
       onShowErrorModal();
       return;
     }

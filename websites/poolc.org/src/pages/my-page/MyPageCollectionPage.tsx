@@ -224,6 +224,9 @@ export default function MyPageCollectionPage() {
   const shinyDrawStatus = summary?.shinyDrawStatus ?? 'NEEDS_NORMAL';
   const shinyDrawUnavailable = shinyDrawStatus !== 'AVAILABLE';
   const shinyComplete = shinyDrawStatus === 'COMPLETE';
+  const shinyDrawDisabled = !summary || drawing !== null || shinyDrawUnavailable || masterBallCount < 1;
+  const masterBallExchangeDisabled = !summary || drawing !== null || exchanging || ballCount < 20;
+  const drawAgainShiny = Boolean(detailModal?.collectible.shiny);
   const openCollectionItem = useCallback((item: CollectionItem) => {
     setDetailModal({
       collectible: {
@@ -291,11 +294,11 @@ export default function MyPageCollectionPage() {
     <Tooltip title={normalDrawUnavailable ? '일반 도감을 모두 완성했습니다.' : '포켓볼 1개로 일반 포켓몬 뽑기'}>
       <Button className={styles.drawMenuButton} type="primary" loading={drawing === 'NORMAL'} disabled={!summary || drawing !== null || normalDrawUnavailable || ballCount < 1} onClick={() => { handleDraw(false); setDrawMenuOpen(false); }}><img src={pokeballImage} alt="" aria-hidden="true" />일반 뽑기 <span>×1 / {ballCount}</span></Button>
     </Tooltip>
-    <Tooltip title={shinyDrawUnavailable ? '획득한 포켓몬의 이로치를 모두 수집했습니다.' : '마스터볼 1개로 이로치 포켓몬 뽑기'}>
-      <Button className={styles.drawMenuShinyButton} loading={drawing === 'SHINY'} disabled={!summary || drawing !== null || shinyDrawUnavailable || masterBallCount < 1} onClick={() => { handleDraw(true); setDrawMenuOpen(false); }}><img src={masterBallImage} alt="" aria-hidden="true" />이로치 뽑기 <span>×1 / {masterBallCount}</span></Button>
+    <Tooltip title={shinyDrawUnavailable ? '이로치 뽑기 조건을 충족하지 않았습니다.' : masterBallCount < 1 ? '마스터볼이 부족합니다.' : '마스터볼 1개로 이로치 포켓몬 뽑기'}>
+      <Button className={[styles.drawMenuShinyButton, shinyDrawDisabled && styles.drawMenuDisabled].filter(Boolean).join(' ')} loading={drawing === 'SHINY'} disabled={shinyDrawDisabled} onClick={() => { handleDraw(true); setDrawMenuOpen(false); }}><img src={masterBallImage} alt="" aria-hidden="true" />이로치 뽑기 <span>×1 / {masterBallCount}</span></Button>
     </Tooltip>
     <div className={styles.drawMenuExchange}>
-      <Button className={styles.drawMenuExchangeButton} loading={exchanging} disabled={!summary || drawing !== null || exchanging || ballCount < 20} onClick={() => { handleExchangeMasterBall(); setDrawMenuOpen(false); }}><img src={pokeballImage} alt="" aria-hidden="true" /><strong>마스터볼 교환</strong><span>20 <ArrowRightOutlined aria-hidden="true" /> 1</span><img src={masterBallImage} alt="" aria-hidden="true" /></Button>
+      <Button className={[styles.drawMenuExchangeButton, masterBallExchangeDisabled && styles.drawMenuDisabled].filter(Boolean).join(' ')} loading={exchanging} disabled={masterBallExchangeDisabled} onClick={() => { handleExchangeMasterBall(); setDrawMenuOpen(false); }}><img src={pokeballImage} alt="" aria-hidden="true" /><strong>마스터볼 교환</strong><span>20 <ArrowRightOutlined aria-hidden="true" /> 1</span><img src={masterBallImage} alt="" aria-hidden="true" /></Button>
     </div>
   </div>;
 
@@ -397,10 +400,11 @@ export default function MyPageCollectionPage() {
         title={detailModal?.title}
         description={detailModal?.description}
         onClose={() => setDetailModal(null)}
-        onDrawAgain={detailModal?.title ? () => handleDraw(false) : undefined}
-        drawAgainLoading={drawing === 'NORMAL'}
-        drawAgainDisabled={!summary || drawing !== null || normalDrawUnavailable || ballCount < 1}
-        remainingBallCount={ballCount}
+        onDrawAgain={detailModal?.title ? () => handleDraw(drawAgainShiny) : undefined}
+        drawAgainShiny={drawAgainShiny}
+        drawAgainLoading={drawing === (drawAgainShiny ? 'SHINY' : 'NORMAL')}
+        drawAgainDisabled={drawAgainShiny ? shinyDrawDisabled : !summary || drawing !== null || normalDrawUnavailable || ballCount < 1}
+        remainingBallCount={drawAgainShiny ? masterBallCount : ballCount}
       />
     </Block>
   );
@@ -420,6 +424,7 @@ const useStyles = createStyles(({ css }) => ({
   drawMenuShinyButton: css`display:flex; align-items:center; justify-content:flex-start; gap:7px; height:44px; padding:0 12px; border-color:#d9c7a0 !important; color:#8d6810 !important; font-weight:700; img{width:22px; height:22px; object-fit:contain;} span{margin-left:auto;}`,
   drawMenuExchange: css`margin-top:2px; padding-top:9px; border-top:1px solid #edf0ef;`,
   drawMenuExchangeButton: css`display:flex; width:100%; align-items:center; gap:5px; height:42px; padding:0 10px; border-color:#d9c7a0 !important; color:#765419 !important; strong{font-size:.76rem;} span{display:inline-flex; align-items:center; gap:2px; margin-left:auto; font-size:.74rem; font-weight:700;} img{width:18px; height:18px; object-fit:contain;}`,
+  drawMenuDisabled: css`&&, &&:hover, &&:focus{border-color:#d9dddb !important; background:#eef0ef !important; color:#a0a6a3 !important; box-shadow:none !important; cursor:not-allowed;} && span, && strong{color:inherit !important;} && img{filter:grayscale(1); opacity:.45;}`,
   emptyGuide: css`display:flex; flex-direction:column; gap:4px; padding:14px 16px; margin:0 0 18px; border-left:3px solid #49bf9e; background:#f8fcfb; strong{color:#276f59;} .ant-typography{font-size:.82rem; color:#6e7772;}`,
   filters: css`display:flex; align-items:center; gap:8px; margin-bottom:18px; border-bottom:1px solid rgba(76, 55, 34, .08); ${media.mobile}{min-height:44px; gap:12px;}`,
   collectionTabs: css`width:auto; flex:none; min-width:0; .ant-tabs-nav{margin:0; border-bottom:0;} .ant-tabs-tab{padding:12px 0 14px;} ${media.mobile}{flex:1; .ant-tabs-nav-wrap{overflow:visible;} .ant-tabs-tab{display:flex; min-height:44px; align-items:center; padding:0 0 2px;}}`,

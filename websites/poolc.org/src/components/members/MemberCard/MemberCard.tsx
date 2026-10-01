@@ -5,7 +5,7 @@ import { MENU } from '~/constants/menus';
 import { MEMBER_ROLE } from '~/constants/memberRoles';
 
 const MemberCard = ({
-  member: { loginID, name, department, isAdmin, profileImageURL, role },
+  member: { loginID, name, department, isAdmin, profileImageURL, role, baseRole, additionalRoles },
 }: {
   member: {
     loginID: string;
@@ -14,9 +14,16 @@ const MemberCard = ({
     isAdmin: boolean;
     profileImageURL: string;
     role: string;
+    baseRole?: string;
+    additionalRoles?: string[];
   };
 }) => {
-  const memberStatus = role === MEMBER_ROLE.TECHNICIAN ? '기여자' : isAdmin ? '임원진' : null;
+  const memberStatuses = [
+    ...(isAdmin && ['ADMIN', 'SUPER_ADMIN'].includes(baseRole || role) ? ['임원진'] : []),
+    ...(additionalRoles?.includes(MEMBER_ROLE.TECHNICIAN) || role === MEMBER_ROLE.TECHNICIAN ? ['기여자'] : []),
+    ...(baseRole === MEMBER_ROLE.GRADUATED_INACTIVE || role === MEMBER_ROLE.GRADUATED_INACTIVE ? ['졸업 비활동'] : []),
+    ...(additionalRoles?.includes(MEMBER_ROLE.GRADUATED) || role === MEMBER_ROLE.GRADUATED ? ['졸업회원'] : []),
+  ];
 
   return (
     <StyledLink to={`/${MENU.MEMBER}/${loginID}`}>
@@ -26,7 +33,7 @@ const MemberCard = ({
           <MemberCardText>
             <MemberCardNameRow>
               <MemberCardName>{name}</MemberCardName>
-              {memberStatus && <MemberCardStatus>{memberStatus}</MemberCardStatus>}
+              {memberStatuses.map((memberStatus) => <MemberCardStatus key={memberStatus}>{memberStatus}</MemberCardStatus>)}
             </MemberCardNameRow>
             <MemberCardMajor>{department}</MemberCardMajor>
           </MemberCardText>

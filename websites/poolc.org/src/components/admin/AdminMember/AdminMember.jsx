@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Modal } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import { withRouter } from 'react-router-dom';
 import { MENU } from '../../../constants/menus';
 import { WhiteNarrowBlock } from '../../../styles/common/Block.styles';
@@ -7,6 +7,7 @@ import { ListSearchToolbar } from '../../common/ListSearchToolbar/ListSearchTool
 import { SectionTabs } from '../../common/SectionTabs/SectionTabs';
 import {
   EmptyResult,
+  AdditionalRoleOptions,
   FilterControl,
   MemberIdentity,
   MemberListRow,
@@ -16,7 +17,9 @@ import {
   PendingActionButton,
   PendingActions,
   PendingDeleteButton,
+  RoleCell,
   RoleSelect,
+  RemarksTrigger,
   TableHead,
   TabFilterRow,
   Title,
@@ -31,12 +34,14 @@ const MEMBER_TAB = {
 };
 
 const TERMINATED_ROLES = ['EXPELLED', 'QUIT'];
-const INACTIVE_ROLES = ['INACTIVE', 'GRADUATED', 'COMPLETE'];
+const INACTIVE_ROLES = ['INACTIVE', 'COMPLETE', 'GRADUATED_INACTIVE'];
+const ADDITIONAL_ROLE_NAMES = ['TECHNICIAN', 'GRADUATED'];
 
 const getMemberTab = (member) => {
-  if (member.role === 'UNACCEPTED') return MEMBER_TAB.PENDING;
-  if (INACTIVE_ROLES.includes(member.role)) return MEMBER_TAB.INACTIVE;
-  if (TERMINATED_ROLES.includes(member.role)) return MEMBER_TAB.TERMINATED;
+  const baseRole = member.baseRole || member.role;
+  if (baseRole === 'UNACCEPTED') return MEMBER_TAB.PENDING;
+  if (TERMINATED_ROLES.includes(baseRole)) return MEMBER_TAB.TERMINATED;
+  if (INACTIVE_ROLES.includes(baseRole)) return MEMBER_TAB.INACTIVE;
   return MEMBER_TAB.ACTIVE;
 };
 
@@ -47,14 +52,39 @@ const MemberTableHead = ({ showPendingActions }) => (
       <th>학과</th>
       <th>학번</th>
       <th>연락처</th>
+      <th>비고</th>
       <th>{showPendingActions ? '조치' : '역할'}</th>
     </TableHead>
   </thead>
 );
 
-const MemberRow = ({ member, roles, showPendingActions, onAcceptMember, onWithdrawMember, onUpdateMemberRole, history }) => {
+const MemberRow = ({ member, roles, showPendingActions, onAcceptMember, onWithdrawMember, onUpdateMemberRole, onUpdateAdditionalRole, onUpdateAdminRemarks, history }) => {
+  const [remarksModalOpen, setRemarksModalOpen] = useState(false);
+  const [remarksDraft, setRemarksDraft] = useState(member.adminRemarks || '');
+  const [savingRemarks, setSavingRemarks] = useState(false);
+  const additionalRoles = member.additionalRoles || [];
+  const canHaveAdditionalRoles = !['UNACCEPTED', 'EXPELLED', 'QUIT', 'PUBLIC'].includes(member.baseRole || member.role);
   const stopRowNavigation = (event) => event.stopPropagation();
   const moveToMemberDetail = () => history.push(`/${MENU.MEMBER}/${member.loginID}`);
+  const openRemarks = (event) => {
+    event.stopPropagation();
+    setRemarksDraft(member.adminRemarks || '');
+    setRemarksModalOpen(true);
+  };
+  const saveRemarks = async () => {
+    setSavingRemarks(true);
+    try {
+      const saved = await onUpdateAdminRemarks({ loginID: member.loginID, remarks: remarksDraft });
+      if (saved) setRemarksModalOpen(false);
+    } finally {
+      setSavingRemarks(false);
+    }
+  };
+  const handleAdditionalRoleChange = async (event, role) => {
+    event.stopPropagation();
+    const enabled = event.target.type === 'checkbox' ? event.target.checked : event.target.value === role;
+    await onUpdateAdditionalRole({ loginID: member.loginID, role, enabled });
+  };
   const confirmDelete = () => Modal.confirm({
     title: '승인 대기 회원 삭제',
     content: `${member.name} 회원의 가입 신청을 정말 삭제하시겠습니까?`,
@@ -65,6 +95,25 @@ const MemberRow = ({ member, roles, showPendingActions, onAcceptMember, onWithdr
   });
 
   return (
+    <>
+    <Modal
+      title={`${member.name} 회원 비고`}
+      open={remarksModalOpen}
+      onCancel={() => !savingRemarks && setRemarksModalOpen(false)}
+      footer={[
+        <Button key="cancel" onClick={() => setRemarksModalOpen(false)} disabled={savingRemarks}>취소</Button>,
+        <Button key="save" type="primary" onClick={saveRemarks} loading={savingRemarks}>저장</Button>,
+      ]}
+    >
+      <Input.TextArea
+        value={remarksDraft}
+        onChange={(event) => setRemarksDraft(event.target.value)}
+        maxLength={1000}
+        autoSize={{ minRows: 6, maxRows: 14 }}
+        placeholder="회원 관련 비고를 입력하세요."
+        aria-label={`${member.name} 회원 비고 내용`}
+      />
+    </Modal>
     <MemberListRow onClick={moveToMemberDetail}>
       <td>
         <MemberIdentity>
@@ -75,26 +124,47 @@ const MemberRow = ({ member, roles, showPendingActions, onAcceptMember, onWithdr
       <td>{member.department || '-'}</td>
       <td>{member.studentID || '-'}</td>
       <td>{member.phoneNumber || '-'}</td>
+      <td onClick={stopRowNavigation}>
+        <RemarksTrigger type="button" onClick={openRemarks} title={member.adminRemarks || '비고 입력'} aria-label={`${member.name} 비고 열기`}>
+          <span data-empty={!member.adminRemarks}>{member.adminRemarks || '비고 입력'}</span>
+        </RemarksTrigger>
+      </td>
       {showPendingActions && <td onClick={stopRowNavigation}>
         <PendingActions>
           <PendingActionButton onClick={() => onAcceptMember(member.loginID)}>승인</PendingActionButton>
           <PendingDeleteButton onClick={confirmDelete}>삭제</PendingDeleteButton>
         </PendingActions>
       </td>}
-      {!showPendingActions && <td onClick={stopRowNavigation}>
-        <RoleSelect value={member.role || 'MEMBER'} onChange={(event) => onUpdateMemberRole({ loginID: member.loginID, role: event.target.value })} aria-label={`${member.name} 역할`}>
-          {roles?.map((role) => (
-            <option key={role.name} value={role.name}>
-              {role.description}
-            </option>
-          ))}
-        </RoleSelect>
-      </td>}
+      {!showPendingActions && (
+        <td onClick={stopRowNavigation}>
+          <RoleCell>
+            <RoleSelect value={member.baseRole || member.role || 'MEMBER'} onChange={(event) => onUpdateMemberRole({ loginID: member.loginID, role: event.target.value })} aria-label={`${member.name} 기본 역할`}>
+              {roles?.filter((role) => !ADDITIONAL_ROLE_NAMES.includes(role.name)).map((role) => (
+                <option key={role.name} value={role.name}>
+                  {role.description}
+                </option>
+              ))}
+            </RoleSelect>
+            <AdditionalRoleOptions>
+              {ADDITIONAL_ROLE_NAMES.map((role) => {
+                const checked = additionalRoles.includes(role);
+                return (
+                  <label key={role} data-active={checked} data-disabled={!canHaveAdditionalRoles} title={role === 'TECHNICIAN' ? '관리자 권한이 함께 부여됩니다.' : undefined}>
+                    <input type="checkbox" checked={checked} disabled={!canHaveAdditionalRoles} onChange={(event) => handleAdditionalRoleChange(event, role)} />
+                    {role === 'TECHNICIAN' ? '기여자' : '졸업회원'}
+                  </label>
+                );
+              })}
+            </AdditionalRoleOptions>
+          </RoleCell>
+        </td>
+      )}
     </MemberListRow>
+    </>
   );
 };
 
-const AdminMember = ({ members, onAcceptMember, onWithdrawMember, onUpdateMemberRole, roles, history }) => {
+const AdminMember = ({ members, onAcceptMember, onWithdrawMember, onUpdateMemberRole, onUpdateAdditionalRole, onUpdateAdminRemarks, roles, history }) => {
   const [activeTab, setActiveTab] = useState(MEMBER_TAB.PENDING);
   const [keyword, setKeyword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,7 +187,7 @@ const AdminMember = ({ members, onAcceptMember, onWithdrawMember, onUpdateMember
 
     const filteredMembers = members.filter((member) => {
       const isInTab = getMemberTab(member) === activeTab;
-      const matchesRole = roleFilter === 'ALL' || member.role === roleFilter;
+      const matchesRole = roleFilter === 'ALL' || member.role === roleFilter || member.baseRole === roleFilter || member.additionalRoles?.includes(roleFilter);
       const searchableValues = [member.name, member.loginID, member.email, member.studentID, member.department].filter(Boolean).join(' ').toLowerCase();
       const matchesQuery = !normalizedQuery || searchableValues.includes(normalizedQuery);
 
@@ -125,7 +195,7 @@ const AdminMember = ({ members, onAcceptMember, onWithdrawMember, onUpdateMember
     });
 
     if (activeTab === MEMBER_TAB.INACTIVE) {
-      filteredMembers.sort((left, right) => Number(right.role === 'INACTIVE') - Number(left.role === 'INACTIVE'));
+      filteredMembers.sort((left, right) => Number((right.baseRole || right.role) === 'INACTIVE') - Number((left.baseRole || left.role) === 'INACTIVE'));
     }
 
     return filteredMembers;
@@ -173,6 +243,8 @@ const AdminMember = ({ members, onAcceptMember, onWithdrawMember, onUpdateMember
                 onAcceptMember={onAcceptMember}
                 onWithdrawMember={onWithdrawMember}
                 onUpdateMemberRole={onUpdateMemberRole}
+                onUpdateAdditionalRole={onUpdateAdditionalRole}
+                onUpdateAdminRemarks={onUpdateAdminRemarks}
                 history={history}
               />
             ))}

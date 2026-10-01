@@ -116,6 +116,27 @@ const MyInfoFormContainer = ({ history }) => {
       });
   };
 
+  const onUpdateAdditionalRoleBySelf = async ({ role, enabled }) => {
+    try {
+      const response = await memberAPI.updateMyAdditionalRole({ role, enabled });
+      if (response.status === SUCCESS.OK) {
+        setUserInfo((currentUser) => {
+          const additionalRoles = enabled
+            ? [...new Set([...(currentUser.additionalRoles || []), role])]
+            : (currentUser.additionalRoles || []).filter((existingRole) => existingRole !== role);
+          return { ...currentUser, additionalRoles };
+        });
+        setMessage('추가 역할을 수정했습니다.');
+        handleModalOpen();
+        return true;
+      }
+    } catch {
+      setMessage('추가 역할 수정 실패');
+      handleModalOpen();
+    }
+    return false;
+  };
+
   const onWithdraw = () => {
     memberAPI
       .updateMemberRoleBySelf({ role: 'QUIT' })
@@ -149,6 +170,7 @@ const MyInfoFormContainer = ({ history }) => {
           userInfo={userInfo}
           roles={roles}
           onUpdateMemberRoleBySelf={onUpdateMemberRoleBySelf}
+          onUpdateAdditionalRoleBySelf={onUpdateAdditionalRoleBySelf}
           onWithdraw={onWithdraw}
         />
       )}

@@ -80,6 +80,10 @@ const ActivityDetailContainer = ({ match }) => {
       });
   };
 
+  const onDeleteSession = (sessionID) => {
+    setActivitySessions((sessions) => sessions.filter((session) => session.id !== sessionID));
+  };
+
   return (
     <ActivityDetail
       loading={activityLoading || activityMembersLoading || activitySessionsLoading}
@@ -87,6 +91,7 @@ const ActivityDetailContainer = ({ match }) => {
       activityMembers={activityMembers}
       activityMemberIDs={activityMemberIDs}
       activitySessions={activitySessions}
+      onDeleteSession={onDeleteSession}
       member={member}
       onToggleRegisterActivity={onToggleRegisterActivity}
     />

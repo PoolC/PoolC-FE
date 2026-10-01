@@ -41,7 +41,7 @@ import { PagePanel, PageShell } from '../../common/PageLayout/PageLayout';
 
 const Tag = ({ tag }) => <TagCard>#{tag}</TagCard>;
 
-const ActivityDetail = ({ loading, activity, activityMembers, activityMemberIDs, activitySessions, member, onToggleRegisterActivity }) => {
+const ActivityDetail = ({ loading, activity, activityMembers, activityMemberIDs, activitySessions, member, onToggleRegisterActivity, onDeleteSession }) => {
   const {
     status: { isLogin },
     user: { memberId, role },
@@ -180,7 +180,7 @@ const ActivityDetail = ({ loading, activity, activityMembers, activityMemberIDs,
                 <SectionTitle>회차 정보</SectionTitle>
                 <Sessions>
                   {activitySessions?.map((session) => (
-                    <SessionContainer key={session.id} session={session} activityID={activity.id} host={activity.host} role={role} />
+                    <SessionContainer key={session.id} session={session} activityID={activity.id} host={activity.host} role={role} onDeleteSession={onDeleteSession} />
                   ))}
                 </Sessions>
               </SessionBlock>

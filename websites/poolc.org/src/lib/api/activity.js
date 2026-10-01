@@ -62,6 +62,8 @@ export const updateActivitySession = ({ sessionID, date, description, hour, file
     fileList,
   });
 
+export const deleteActivitySession = (sessionID) => client.delete(`/activity/session/${sessionID}`);
+
 export const applyActivity = (activityID) => client.post(`/activity/apply/${activityID}`);
 
 export const getActivityMembers = (activityID) => client.get(`/activity/member/${activityID}`);

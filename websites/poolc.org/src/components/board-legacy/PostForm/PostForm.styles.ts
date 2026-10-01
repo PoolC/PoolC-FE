@@ -52,13 +52,14 @@ export const FileDeleteButton = styled.button`
   justify-content: center;
   padding: 2px 4px;
   border-radius: 4px;
-  color: ${colors.gray[0]};
+  color: #fff;
   font-size: 0.7rem;
-  background-color: ${colors.red[0]};
+  background-color: ${colors.red[2]};
   margin: 0 0.2rem;
   transition: 0.25s ease-in;
   &:hover {
-    background-color: ${colors.red[1]};
+    background-color: ${colors.red[2]};
+    opacity: 0.86;
     transition: 0.25s ease-in;
   }
 `;

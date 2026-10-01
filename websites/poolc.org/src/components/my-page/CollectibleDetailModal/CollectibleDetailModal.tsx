@@ -3,6 +3,7 @@ import { Button, Modal, Segmented, Tag, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import { useEffect, useState } from 'react';
 import pokeballImage from '~/assets/images/pokeball.png';
+import masterBallImage from '~/assets/images/masterball.png';
 
 type Rarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
 
@@ -33,6 +34,7 @@ type CollectibleDetailModalProps = {
   description?: string;
   onClose: () => void;
   onDrawAgain?: () => void;
+  drawAgainShiny?: boolean;
   drawAgainLoading?: boolean;
   drawAgainDisabled?: boolean;
   remainingBallCount?: number;
@@ -52,12 +54,14 @@ const rarityColor: Record<Rarity, string> = {
   LEGENDARY: '#d59a12',
 };
 
-export default function CollectibleDetailModal({ collectible, title, description, onClose, onDrawAgain, drawAgainLoading = false, drawAgainDisabled = false, remainingBallCount }: CollectibleDetailModalProps) {
+export default function CollectibleDetailModal({ collectible, title, description, onClose, onDrawAgain, drawAgainShiny = false, drawAgainLoading = false, drawAgainDisabled = false, remainingBallCount }: CollectibleDetailModalProps) {
   const { styles } = useStyles();
   const [showShiny, setShowShiny] = useState(false);
   const canShowShiny = Boolean(collectible?.shinyOwned && collectible.shinySpriteUrl);
   const showingShiny = canShowShiny && showShiny;
   const showDexDetails = !title;
+  const drawAgainBallImage = drawAgainShiny ? masterBallImage : pokeballImage;
+  const drawAgainBallName = drawAgainShiny ? '마스터볼' : '포켓볼';
   useEffect(() => {
     setShowShiny(Boolean(collectible?.shiny));
   }, [collectible]);
@@ -65,7 +69,7 @@ export default function CollectibleDetailModal({ collectible, title, description
   return (
     <Modal
       open={Boolean(collectible)}
-      footer={<div className={styles.footer}>{onDrawAgain && <><span className={styles.remainingBalls}><img src={pokeballImage} alt="" aria-hidden="true" />남은 포켓볼 <strong>{remainingBallCount ?? 0}개</strong></span><Button className={styles.drawAgainButton} loading={drawAgainLoading} disabled={drawAgainDisabled} onClick={onDrawAgain}><img src={pokeballImage} alt="" aria-hidden="true" />한 번 더 뽑기</Button></>}<Button type="primary" onClick={onClose}>닫기</Button></div>}
+      footer={<div className={styles.footer}>{onDrawAgain && <><span className={styles.remainingBalls}><img src={drawAgainBallImage} alt="" aria-hidden="true" />남은 {drawAgainBallName} <strong>{remainingBallCount ?? 0}개</strong></span><Button className={styles.drawAgainButton} loading={drawAgainLoading} disabled={drawAgainDisabled} onClick={onDrawAgain}><img src={drawAgainBallImage} alt="" aria-hidden="true" />{drawAgainShiny ? '이로치 한 번 더 뽑기' : '한 번 더 뽑기'}</Button></>}<Button type="primary" onClick={onClose}>닫기</Button></div>}
       closeIcon={<CloseOutlined aria-label="닫기" />}
       onCancel={onClose}
       centered
