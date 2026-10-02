@@ -133,7 +133,8 @@ export default function MyPageContainer() {
       },
     ],
   });
-  const canAccessPokemon = isAuthorizedRole(me.role);
+  const memberRole = me.role ?? MEMBER_ROLE.PUBLIC;
+  const canAccessPokemon = isAuthorizedRole(memberRole);
 
   const listData: {
     title: string;
@@ -242,8 +243,8 @@ export default function MyPageContainer() {
     ? configuredActivityMinimumHour
     : 10;
   const recordedActivityHours = activitySummary.totalHours ?? 0;
-  const hasManualExemption = Boolean(me.isExcepted) && !AUTOMATIC_ACTIVITY_EXEMPTION_ROLES.has(me.role);
-  const activityExemptionLabel = ACTIVITY_EXEMPTION_LABELS[me.role] ?? (hasManualExemption ? '관리자 면제' : null);
+  const hasManualExemption = Boolean(me.isExcepted) && !AUTOMATIC_ACTIVITY_EXEMPTION_ROLES.has(memberRole);
+  const activityExemptionLabel = ACTIVITY_EXEMPTION_LABELS[memberRole] ?? (hasManualExemption ? '관리자 면제' : null);
   const displayedActivityHours = recordedActivityHours;
   const remainingActivityHours = Math.max(activityMinimumHour - displayedActivityHours, 0);
   const meetsRecordedActivityRequirement = displayedActivityHours >= activityMinimumHour;
@@ -253,7 +254,7 @@ export default function MyPageContainer() {
       return { label: '면제', description: '관리자 승인으로 활동 기준이 면제됩니다.', className: styles.activityStatusExempt };
     }
 
-    switch (me.role) {
+    switch (memberRole) {
       case MEMBER_ROLE.INACTIVE:
         return { label: '면제', description: '이번 학기 비활동 회원입니다.', className: styles.activityStatusExempt };
       case MEMBER_ROLE.GRADUATED:
