@@ -18,9 +18,7 @@ const ROLE_LABELS: Record<string, string> = {
   MEMBER: '일반회원',
   ADMIN: '임원진',
   TECHNICIAN: '기여자',
-  GRADUATED_INACTIVE: '졸업 비활동',
   SUPER_ADMIN: '최고 관리자',
-  GRADUATED: '졸업회원',
   COMPLETE: '수료회원',
   INACTIVE: '비활동',
 };
@@ -29,14 +27,12 @@ const FALLBACK_ROLE_OPTIONS: FilterSearchToolbarOption<MemberFilter>[] = [
   { label: '전체', value: 'ALL' },
   { label: '임원진', value: 'ADMIN' },
   { label: '기여자', value: 'TECHNICIAN' },
-  { label: '졸업 비활동', value: 'GRADUATED_INACTIVE' },
   { label: '일반회원', value: 'MEMBER' },
   { label: '수료회원', value: 'COMPLETE' },
-  { label: '졸업회원', value: 'GRADUATED' },
   { label: '비활동', value: 'INACTIVE' },
 ];
 
-const ROLE_ORDER: MemberFilter[] = ['ALL', 'ADMIN', 'TECHNICIAN', 'GRADUATED_INACTIVE', 'MEMBER', 'COMPLETE', 'GRADUATED', 'INACTIVE'];
+const ROLE_ORDER: MemberFilter[] = ['ALL', 'ADMIN', 'TECHNICIAN', 'MEMBER', 'COMPLETE', 'INACTIVE'];
 
 const getRoleOptions = (roles?: MemberRolesResponse[]) => {
   if (!roles || roles.length === 0) {
@@ -82,7 +78,11 @@ export default function MemberListContent() {
 
     return visibleMembers.filter((member) => {
       const matchesFilter = filter === 'ALL'
-        || (filter === 'ADMIN' ? ['ADMIN', 'SUPER_ADMIN'].includes(member.baseRole || member.role || '') : member.role === filter || member.baseRole === filter || member.additionalRoles?.includes(filter));
+        || (filter === 'ADMIN'
+          ? ['ADMIN', 'SUPER_ADMIN'].includes(member.baseRole || member.role || '')
+          : filter === 'INACTIVE'
+            ? ['INACTIVE', 'GRADUATED_INACTIVE'].includes(member.baseRole || member.role || '')
+            : member.role === filter || member.baseRole === filter || member.additionalRoles?.includes(filter));
 
       if (!matchesFilter) {
         return false;

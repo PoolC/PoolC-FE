@@ -21,8 +21,7 @@ const MemberCard = ({
   const memberStatuses = [
     ...(isAdmin && ['ADMIN', 'SUPER_ADMIN'].includes(baseRole || role) ? ['임원진'] : []),
     ...(additionalRoles?.includes(MEMBER_ROLE.TECHNICIAN) || role === MEMBER_ROLE.TECHNICIAN ? ['기여자'] : []),
-    ...(baseRole === MEMBER_ROLE.GRADUATED_INACTIVE || role === MEMBER_ROLE.GRADUATED_INACTIVE ? ['졸업 비활동'] : []),
-    ...(additionalRoles?.includes(MEMBER_ROLE.GRADUATED) || role === MEMBER_ROLE.GRADUATED ? ['졸업회원'] : []),
+    ...(additionalRoles?.includes(MEMBER_ROLE.GRADUATED) || role === MEMBER_ROLE.GRADUATED ? ['졸업'] : []),
   ];
 
   return (
