@@ -7,6 +7,9 @@ import type { Badge } from './Badge';
 import type { ProjectResponse } from './ProjectResponse';
 export type MemberResponse = {
     badge?: Badge;
+    additionalRoles?: Array<string>;
+    adminRemarks?: string;
+    baseRole?: string;
     department?: string;
     email?: string;
     hostActivities?: Array<ActivityResponse>;
@@ -23,4 +26,3 @@ export type MemberResponse = {
     role?: string;
     studentID?: string;
 };
-

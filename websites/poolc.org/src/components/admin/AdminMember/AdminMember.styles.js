@@ -78,7 +78,7 @@ export const MemberTableContainer = styled.div`
 
 export const MemberTable = styled.table`
   width: 100%;
-  min-width: 720px;
+  min-width: 860px;
   border-collapse: collapse;
   table-layout: fixed;
   color: ${colors.brown[1]};
@@ -86,17 +86,29 @@ export const MemberTable = styled.table`
 
   th,
   td {
-    padding: 13px 14px;
+    box-sizing: border-box;
+    padding: 12px 10px;
     border-bottom: 1px solid rgba(76, 55, 34, 0.08);
     text-align: center;
     vertical-align: middle;
   }
 
-  th:nth-of-type(1) { width: 24%; }
-  th:nth-of-type(2) { width: 18%; }
-  th:nth-of-type(3) { width: 16%; }
-  th:nth-of-type(4) { width: 22%; }
-  th:nth-of-type(5) { width: 20%; }
+  th:nth-of-type(1) { width: 17%; }
+  th:nth-of-type(2) { width: 13%; }
+  th:nth-of-type(3) { width: 12%; }
+  th:nth-of-type(4) { width: 15%; }
+  th:nth-of-type(5) { width: 24%; }
+  th:nth-of-type(6) { width: 19%; }
+
+  @media (max-width: 900px) {
+    min-width: 820px;
+
+    th,
+    td {
+      padding: 10px 7px;
+      font-size: 0.8rem;
+    }
+  }
 
   tbody tr:last-of-type td {
     border-bottom: 0;
@@ -147,7 +159,7 @@ export const PendingActions = styled.div`
     width: 60px;
     height: 36px;
     padding: 0;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 0.78rem;
     font-weight: 800;
     white-space: nowrap;
@@ -161,20 +173,125 @@ export const PendingActionButton = styled.button`
 `;
 
 export const PendingDeleteButton = styled.button`
-  border: 1px solid #f2b5b5;
-  background: #fff;
-  color: #d95757;
+  border: 1px solid ${colors.red[2]};
+  background: ${colors.red[2]};
+  color: #fff;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.86;
+  }
 `;
 
 export const RoleSelect = styled.select`
-  min-width: 96px;
+  width: 100%;
+  max-width: 156px;
   height: 32px;
-  padding: 0 6px;
+  padding: 0 8px;
   border: 1px solid #d8d0c6;
-  border-radius: 5px;
+  border-radius: 8px;
   background: #fff;
   color: ${colors.brown[1]};
   font-size: 0.78rem;
+`;
+
+export const RoleCell = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 156px;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+`;
+
+export const RemarksTrigger = styled.button`
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid #d8d0c6;
+  border-radius: 8px;
+  background: #fff;
+  color: ${colors.brown[1]};
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: left;
+
+  span {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span[data-empty='true'] {
+    color: ${colors.brown[0]};
+  }
+
+  &:hover {
+    border-color: ${colors.mint[2]};
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(71, 190, 155, 0.22);
+    border-color: ${colors.mint[2]};
+  }
+`;
+
+export const RemarksCharacterCount = styled.div`
+  margin-top: 6px;
+  color: ${colors.brown[0]};
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+`;
+
+export const AdditionalRoleOptions = styled.div`
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  box-sizing: border-box;
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    gap: 4px;
+    padding: 4px 7px;
+    border: 1px solid #e5ded4;
+    border-radius: 8px;
+    background: #fff;
+    color: ${colors.brown[1]};
+    font-size: 0.72rem;
+    white-space: nowrap;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    &[data-active='true'] {
+      border-color: #b7ded1;
+      background: ${colors.mint[0]};
+    }
+
+    &[data-disabled='true'] {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+  }
+
+  input {
+    width: 13px;
+    height: 13px;
+    margin: 0;
+    accent-color: ${colors.mint[2]};
+  }
 `;
 
 export const EmptyResult = styled.p`

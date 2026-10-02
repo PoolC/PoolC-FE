@@ -17,9 +17,11 @@ export const StyledButton = styled(ActionButton)`
     }
   }
   &.delete {
-    background-color: ${colors.red[1]};
+    background-color: ${colors.red[2]};
+    color: #fff;
     &:hover {
-      background-color: ${colors.red[0]};
+      background-color: ${colors.red[2]};
+      opacity: 0.86;
     }
   }
 `;

@@ -196,13 +196,13 @@ export const ActionCell = styled.div`
 `;
 
 export const ExpellActionButton = styled(ActionButton)`
-  border: 1px solid #f2b5b5;
-  background: #fff;
-  color: #d95757;
+  border: 1px solid ${colors.red[2]};
+  background: ${colors.red[2]};
+  color: #fff;
 
   &:hover {
-    background: #fff6f6;
-    opacity: 1;
+    background: ${colors.red[2]};
+    opacity: 0.86;
   }
 `;
 

@@ -37,7 +37,7 @@ export const Input = ({ valueText, labelText, typeText, nameText, error, onChang
   );
 };
 
-const AuthForm = ({ type, onSubmit, message, onChangeMessage, modalVisible, handleModalOpen, handleModalClose, userInfo, onUpdateMemberRoleBySelf, roles, onWithdraw }) => {
+const AuthForm = ({ type, onSubmit, message, onChangeMessage, modalVisible, handleModalOpen, handleModalClose, userInfo, onUpdateMemberRoleBySelf, onUpdateAdditionalRoleBySelf, roles, onWithdraw }) => {
   const headerText = textMap[type];
 
   const [id, onChangeId, idError] = useInput(userInfo ? userInfo.loginID : '', idValidation);
@@ -49,7 +49,8 @@ const AuthForm = ({ type, onSubmit, message, onChangeMessage, modalVisible, hand
   const [studentId, onChangeStudentId, studentIdError] = useInput(userInfo ? userInfo.studentID : '', notEmptyValidation);
   const [introduction, onChangeIntroduction, introductionError] = useInput(userInfo ? userInfo.introduction : '', notEmptyValidation);
 
-  const [role, setRole] = useState(userInfo ? userInfo.role : 'MEMBER');
+  const [role, setRole] = useState(userInfo ? (userInfo.baseRole || userInfo.role) : 'MEMBER');
+  const [graduated, setGraduated] = useState(Boolean(userInfo?.additionalRoles?.includes('GRADUATED') || userInfo?.role === 'GRADUATED'));
 
   const [passwordCheck, setPasswordCheck] = useState('');
   const [passwordCheckError, setPasswordError] = useState(false);
@@ -251,12 +252,26 @@ const AuthForm = ({ type, onSubmit, message, onChangeMessage, modalVisible, hand
               <FormList>
                 <>
                   <StyledSelect value={role} onChange={(value) => setRole(value)}>
-                    {roles?.map((r) => (
+                    {roles?.filter((r) => !['TECHNICIAN', 'GRADUATED'].includes(r.name)).map((r) => (
                       <Select.Option key={r.name} value={r.name}>
                         {r.description}
                       </Select.Option>
                     ))}
                   </StyledSelect>
+                  {roles?.some((r) => r.name === 'GRADUATED') && (
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: '0.75rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={graduated}
+                        onChange={async (event) => {
+                          const enabled = event.target.checked;
+                          const saved = await onUpdateAdditionalRoleBySelf({ role: 'GRADUATED', enabled });
+                          if (saved) setGraduated(enabled);
+                        }}
+                      />
+                      졸업회원 분류
+                    </label>
+                  )}
                   <SubmitButton
                     onClick={(e) => {
                       handleUpdateMemberRoleBySelf(e);

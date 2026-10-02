@@ -16,6 +16,7 @@ import { loadUser } from '~/modules/auth';
 import { useMessage } from '~/hooks/useMessage';
 import { media } from '~/styles/responsive';
 import { isAuthorizedRole } from '~/lib/utils/checkRole';
+import colors from '~/lib/styles/colors';
 
 type GameSummary = {
   ballBalances: { normal: number };
@@ -49,6 +50,26 @@ type OwnedCollectible = {
 
 const hasNormalOwned = (item: OwnedCollectible) => item.normalOwned ?? (item.normalOwnedCount ?? 0) > 0;
 const hasShinyOwned = (item: OwnedCollectible) => item.shinyOwned ?? (item.shinyCount ?? 0) > 0;
+
+const AUTOMATIC_ACTIVITY_EXEMPTION_ROLES = new Set<string>([
+  MEMBER_ROLE.SUPER_ADMIN,
+  MEMBER_ROLE.ADMIN,
+  MEMBER_ROLE.TECHNICIAN,
+  MEMBER_ROLE.GRADUATED_INACTIVE,
+  MEMBER_ROLE.GRADUATED,
+  MEMBER_ROLE.COMPLETE,
+  MEMBER_ROLE.INACTIVE,
+]);
+
+const ACTIVITY_EXEMPTION_LABELS: Record<string, string> = {
+  [MEMBER_ROLE.SUPER_ADMIN]: '최고 관리자 면제',
+  [MEMBER_ROLE.ADMIN]: '임원진 면제',
+  [MEMBER_ROLE.TECHNICIAN]: '기술적 기여 면제',
+  [MEMBER_ROLE.GRADUATED_INACTIVE]: '졸업 비활동 면제',
+  [MEMBER_ROLE.GRADUATED]: '졸업회원 면제',
+  [MEMBER_ROLE.COMPLETE]: '수료회원 면제',
+  [MEMBER_ROLE.INACTIVE]: '한 학기 비활동 면제',
+};
 
 const shinyCatalogImage = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/25.png';
 
@@ -221,16 +242,8 @@ export default function MyPageContainer() {
     ? configuredActivityMinimumHour
     : 10;
   const recordedActivityHours = activitySummary.totalHours ?? 0;
-  const hasRoleExemption = me.role === MEMBER_ROLE.ADMIN || me.role === MEMBER_ROLE.TECHNICIAN;
-  const hasManualExemption = Boolean(me.isExcepted) && !hasRoleExemption;
-  const activityExemptionLabel =
-    me.role === MEMBER_ROLE.ADMIN
-      ? '임원진 면제'
-      : me.role === MEMBER_ROLE.TECHNICIAN
-        ? '기술적 기여 면제'
-        : hasManualExemption
-          ? '관리자 면제'
-          : null;
+  const hasManualExemption = Boolean(me.isExcepted) && !AUTOMATIC_ACTIVITY_EXEMPTION_ROLES.has(me.role);
+  const activityExemptionLabel = ACTIVITY_EXEMPTION_LABELS[me.role] ?? (hasManualExemption ? '관리자 면제' : null);
   const displayedActivityHours = recordedActivityHours;
   const remainingActivityHours = Math.max(activityMinimumHour - displayedActivityHours, 0);
   const meetsRecordedActivityRequirement = displayedActivityHours >= activityMinimumHour;
@@ -245,9 +258,12 @@ export default function MyPageContainer() {
         return { label: '면제', description: '이번 학기 비활동 회원입니다.', className: styles.activityStatusExempt };
       case MEMBER_ROLE.GRADUATED:
         return { label: '면제', description: '졸업회원은 활동 기준 대상이 아닙니다.', className: styles.activityStatusExempt };
+      case MEMBER_ROLE.GRADUATED_INACTIVE:
+        return { label: '면제', description: '졸업 비활동 회원은 활동 기준 대상이 아닙니다.', className: styles.activityStatusExempt };
       case MEMBER_ROLE.COMPLETE:
         return { label: '면제', description: '수료회원은 활동 기준 대상이 아닙니다.', className: styles.activityStatusExempt };
       case MEMBER_ROLE.ADMIN:
+      case MEMBER_ROLE.SUPER_ADMIN:
         return { label: '면제', description: '임원진 역할로 활동 기준이 면제됩니다.', className: styles.activityStatusExempt };
       case MEMBER_ROLE.TECHNICIAN:
         return { label: '면제', description: '기술 기여 역할로 활동 기준이 면제됩니다.', className: styles.activityStatusExempt };
@@ -441,7 +457,7 @@ export default function MyPageContainer() {
         cancelText="취소"
         confirmLoading={savingFeatured}
         okButtonProps={{ disabled: !selectedCollectibleId }}
-        footer={(_, { OkBtn, CancelBtn }) => <div className={styles.featuredModalFooter}>{featuredCollectible && <Button danger type="text" loading={savingFeatured} onClick={clearFeaturedCollectible}>대표 해제</Button>}<div><CancelBtn /><OkBtn /></div></div>}
+        footer={(_, { OkBtn, CancelBtn }) => <div className={styles.featuredModalFooter}>{featuredCollectible && <Button danger type="primary" style={{ backgroundColor: colors.red[2], borderColor: colors.red[2], color: '#fff' }} loading={savingFeatured} onClick={clearFeaturedCollectible}>대표 해제</Button>}<div><CancelBtn /><OkBtn /></div></div>}
       >
         <div className={styles.featuredModalBody}>
           <label>포켓몬

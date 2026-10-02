@@ -186,7 +186,7 @@ const ActivityForm = ({ activity, onCreateActivity, onUpdateActivity, errorMessa
                   <Item>
                     <label htmlFor="capacity">정원</label>
                     <CapacityContainer>
-                      <StyledInput value={capacity} type="number" name="capacity" onChange={onChangeCapacity} placeholder="ex) 10" />
+                      <StyledInput value={capacity} type="number" name="capacity" min="1" step="1" onChange={onChangeCapacity} placeholder="ex) 10" />
                       <span>명</span>
                     </CapacityContainer>
                   </Item>

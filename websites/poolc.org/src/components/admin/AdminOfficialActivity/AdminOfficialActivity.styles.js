@@ -143,13 +143,17 @@ export const ToolbarActions = styled.div`
 export const DeleteButton = styled.button`
   min-width: 56px;
   padding: 7px 10px;
-  border: 1px solid #f2b5b5;
+  border: 1px solid ${colors.red[2]};
   border-radius: 5px;
-  background: #fff;
-  color: #d95757;
+  background: ${colors.red[2]};
+  color: #fff;
   cursor: pointer;
   font-size: 0.78rem;
   font-weight: 800;
+
+  &:hover {
+    opacity: 0.86;
+  }
 `;
 
 export const QrControl = styled.div`

@@ -22,6 +22,7 @@ import { noop } from '~/lib/utils/noop';
 import { getProfileImageUrl } from '~/lib/utils/getProfileImageUrl';
 import { useAppSelector } from '~/hooks/useAppSelector';
 import { media } from '~/styles/responsive';
+import colors from '~/lib/styles/colors';
 
 const useStyles = createStyles(({ css }) => ({
   wrapper: css`
@@ -452,7 +453,7 @@ export default function BoardDetailPage() {
                   <Button type="primary">수정</Button>
                 </Link>
                 <Popconfirm title="게시글 삭제하기" description="게시글을 정말 삭제하시겠어요?" okText="네" cancelText="아니요" onConfirm={onDeleteConfirm}>
-                  <Button type="primary" danger>
+                  <Button type="primary" danger style={{ backgroundColor: colors.red[2], borderColor: colors.red[2], color: '#fff' }}>
                     삭제
                   </Button>
                 </Popconfirm>

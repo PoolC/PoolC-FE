@@ -16,6 +16,12 @@ export const toggleAdmin = ({ loginID, isAdmin }) => client.put(`/member/admin/$
 
 export const updateMemberRole = ({ loginID, role }) => client.put(`/member/role/${loginID}`, { role });
 
+export const updateMemberAdminRemarks = ({ loginID, remarks }) => client.put(`/member/admin-remarks/${loginID}`, { remarks });
+
+export const updateAdditionalMemberRole = ({ loginID, role, enabled }) => client.put(`/member/additional-role/${loginID}`, { role, enabled });
+
+export const updateMyAdditionalRole = ({ role, enabled }) => client.put('/member/additional-role/me', { role, enabled });
+
 export const updateMemberRoleBySelf = ({ role }) => client.put('/member/role', { role });
 
 export const getMemberRole = () => client.get('/member/role');
