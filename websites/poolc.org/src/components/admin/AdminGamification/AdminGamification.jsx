@@ -1,6 +1,8 @@
 import { InputNumber, Pagination, Select, Spin, Tag, Typography } from 'antd';
 import { createStyles } from 'antd-style';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { MEMBER_ROLE } from '~/constants/memberRoles';
 import { useMessage } from '~/hooks/useMessage';
 import * as gameAPI from '~/lib/api/gamification';
 import * as memberAPI from '~/lib/api/member';
@@ -10,6 +12,8 @@ import ActionButton from '../../common/Buttons/ActionButton';
 export default function AdminGamification() {
   const { styles } = useStyles();
   const message = useMessage();
+  const { memberId, role, additionalRoles } = useSelector((state) => state.auth.user);
+  const canGrant = role === MEMBER_ROLE.TECHNICIAN || additionalRoles?.includes(MEMBER_ROLE.TECHNICIAN);
   const [run, setRun] = useState(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
@@ -26,6 +30,12 @@ export default function AdminGamification() {
   const [ballAmount, setBallAmount] = useState(1);
   const [granting, setGranting] = useState(false);
   const [grantingBalls, setGrantingBalls] = useState(false);
+  const recipientOptions = useMemo(() => members
+    .filter((member) => member.loginID !== memberId)
+    .map((member) => ({
+      value: member.loginID,
+      label: `${member.name || member.loginID} (${member.loginID})`,
+    })), [members, memberId]);
 
   const loadLatest = async () => {
     try {
@@ -40,15 +50,24 @@ export default function AdminGamification() {
 
   useEffect(() => {
     loadLatest();
+  }, []);
+
+  useEffect(() => {
+    if (!canGrant) return undefined;
+    let active = true;
     Promise.all([memberAPI.getMembers(), gameAPI.getAdminCatalog(), gameAPI.getPokemonGrantHistory(), gameAPI.getBallGrantHistory()])
       .then(([memberResponse, catalogResponse, historyResponse, ballHistoryResponse]) => {
+        if (!active) return;
         setMembers(memberResponse.data.data || []);
         setCatalog(catalogResponse.data || []);
         setHistory(historyResponse.data || []);
         setBallHistory(ballHistoryResponse.data || []);
       })
-      .catch((error) => message.error(error.response?.data?.message ?? '포켓몬 지급 정보를 불러오지 못했습니다.'));
-  }, []);
+      .catch((error) => {
+        if (active) message.error(error.response?.data?.message ?? '포켓몬 지급 정보를 불러오지 못했습니다.');
+      });
+    return () => { active = false; };
+  }, [canGrant]);
 
   useEffect(() => {
     if (run?.status !== 'RUNNING') return undefined;
@@ -70,7 +89,7 @@ export default function AdminGamification() {
   };
 
   const grantPokemon = async () => {
-    if (!recipient || !collectibleId) return;
+    if (!canGrant || !recipient || recipient === memberId || !collectibleId) return;
     setGranting(true);
     try {
       await gameAPI.grantPokemon({ loginID: recipient, collectibleId: Number(collectibleId), shiny });
@@ -84,7 +103,7 @@ export default function AdminGamification() {
   };
 
   const grantBalls = async () => {
-    if (!ballRecipient || !ballType || !ballAmount || ballAmount < 1) return;
+    if (!canGrant || !ballRecipient || ballRecipient === memberId || !ballType || !ballAmount || ballAmount < 1) return;
     setGrantingBalls(true);
     try {
       await gameAPI.grantBalls({ loginID: ballRecipient, ballType, amount: ballAmount });
@@ -100,6 +119,7 @@ export default function AdminGamification() {
 
   return (
     <WhiteNarrowBlock>
+      {canGrant && <>
       <section className={styles.grantSection}>
         <h2 className={styles.title}>포켓몬 지급</h2>
         <div className={styles.grantForm}>
@@ -111,10 +131,7 @@ export default function AdminGamification() {
               optionFilterProp="label"
               value={recipient || undefined}
               onChange={(value) => setRecipient(value || '')}
-              options={members.map((member) => ({
-                value: member.loginID,
-                label: `${member.name || member.loginID} (${member.loginID})`,
-              }))}
+              options={recipientOptions}
               style={{ width: '100%' }}
             />
           </label>
@@ -148,10 +165,7 @@ export default function AdminGamification() {
               optionFilterProp="label"
               value={ballRecipient || undefined}
               onChange={(value) => setBallRecipient(value || '')}
-              options={members.map((member) => ({
-                value: member.loginID,
-                label: `${member.name || member.loginID} (${member.loginID})`,
-              }))}
+              options={recipientOptions}
               style={{ width: '100%' }}
             />
           </label>
@@ -199,6 +213,7 @@ export default function AdminGamification() {
           </div>
         )}
       </section>
+      </>}
       <header className={styles.header}>
         <div>
           <h2 className={styles.title}>도감 관리</h2>
