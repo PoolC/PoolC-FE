@@ -123,6 +123,7 @@ const initialState = {
     password: '',
     isAdmin: false,
     role: null,
+    additionalRoles: [],
     profileImageURL: '',
   },
 };
@@ -165,6 +166,7 @@ const auth = handleActions(
         isAdmin: data.isAdmin,
         name: data.name,
         role: data.role,
+        additionalRoles: data.additionalRoles || [],
         profileImageURL: getProfileImageUrl(data.profileImageURL),
       },
     }),
@@ -187,6 +189,7 @@ const auth = handleActions(
         name: '',
         isAdmin: false,
         role: null,
+        additionalRoles: [],
         profileImageURL: '',
       },
     }),
