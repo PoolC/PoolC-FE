@@ -13,3 +13,8 @@ export const claimAchievement = (achievementKey) => client.post(`/gamification/m
 export const recordAchievementEvent = (achievementKey) => client.post(`/gamification/me/achievements/${achievementKey}/record`);
 export const startCatalogSync = () => client.post('/gamification/admin/catalog/sync');
 export const getLatestCatalogSync = () => client.get('/gamification/admin/catalog/sync/latest');
+export const getAdminCatalog = () => client.get('/gamification/admin/catalog');
+export const grantPokemon = ({ loginID, collectibleId, shiny }) => client.post('/gamification/admin/pokemon-grants', { loginID, collectibleId, shiny });
+export const getPokemonGrantHistory = () => client.get('/gamification/admin/pokemon-grants');
+export const grantBalls = ({ loginID, ballType, amount }) => client.post('/gamification/admin/ball-grants', { loginID, ballType, amount });
+export const getBallGrantHistory = () => client.get('/gamification/admin/ball-grants');
