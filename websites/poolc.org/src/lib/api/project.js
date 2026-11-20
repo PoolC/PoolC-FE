@@ -4,7 +4,7 @@ export const getProjects = (category) => client.get('/project', { params: catego
 
 export const getProject = (projectId) => client.get(`/project/${projectId}`);
 
-export const createProject = ({ name, description, genre, category, startDate, endDate, thumbnailURL, body, memberLoginIDs }) =>
+export const createProject = ({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL, memberLoginIDs }) =>
   client.post('/project', {
     name,
     description,
@@ -14,10 +14,11 @@ export const createProject = ({ name, description, genre, category, startDate, e
     endDate: endDate || null,
     thumbnailURL,
     body,
+    gameURL: gameURL || null,
     memberLoginIDs,
   });
 
-export const updateProject = ({ projectID, name, description, genre, category, startDate, endDate, thumbnailURL, body, memberLoginIDs }) =>
+export const updateProject = ({ projectID, name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL, memberLoginIDs }) =>
   client.put(`/project/${projectID}`, {
     name,
     description,
@@ -27,7 +28,11 @@ export const updateProject = ({ projectID, name, description, genre, category, s
     endDate: endDate || null,
     thumbnailURL,
     body,
+    gameURL: gameURL || null,
     memberLoginIDs,
   });
 
 export const deleteProject = (projectID) => client.delete(`/project/${projectID}`);
+
+export const getGameBuildUploadTargets = ({ files, entrypoint }) =>
+  client.post('/project/game-build/upload-targets', { files, entrypoint });
