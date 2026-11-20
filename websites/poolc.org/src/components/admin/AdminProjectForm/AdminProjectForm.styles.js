@@ -47,6 +47,89 @@ export const ThumbnailHeader = styled.div`
   }
 `;
 
+export const GameDropZone = styled.label`
+  position: relative;
+  display: flex;
+  min-height: 156px;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px;
+  border: 2px dashed ${colors.gray[2]};
+  border-radius: 12px;
+  background: #fcfbf9;
+  color: ${colors.brown[0]};
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+
+  &:hover,
+  &[data-active='true'] {
+    border-color: ${colors.mint[2]};
+    background: #f2fbf8;
+  }
+
+  &[data-disabled='true'] {
+    cursor: progress;
+    opacity: 0.65;
+  }
+
+  > svg {
+    color: ${colors.mint[2]};
+    font-size: 34px;
+  }
+
+  .drop-title {
+    color: ${colors.brown[1]};
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .drop-action {
+    color: ${colors.mint[3]};
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+`;
+
+export const GameUploadFile = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  color: ${colors.brown[1]};
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+
+  a,
+  button {
+    color: ${colors.mint[3]};
+    font: inherit;
+    font-weight: 700;
+  }
+
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
 export const FieldHeader = styled.div`
   display: flex;
   align-items: baseline;

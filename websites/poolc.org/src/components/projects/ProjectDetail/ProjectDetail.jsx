@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import poolcIcon from '~/assets/images/poolc-icon.png';
 // FIXME: eslint issue 수정 필요. 터미널에서는 에러가 나지 않으나, 에디터에서만 에러가 나고 있음
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Viewer } from '@dialga/react-editor';
@@ -5,6 +7,9 @@ import MemberCard from '../../members/MemberCard/MemberCard';
 import {
   BodyContainer,
   Duration,
+  GameModal,
+  GameModalIcon,
+  GameModalTitle,
   Hero,
   ImageContainer,
   Introduction,
@@ -17,10 +22,14 @@ import {
   NameContainer,
   StyledImage,
   TextContainer,
+  GameFrame,
+  GameLink,
+  GameSection,
 } from './ProjectDetail.styles';
 import { PagePanel, PageShell } from '../../common/PageLayout/PageLayout';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
 import { isAuthorizedRole } from '../../../lib/utils/checkRole';
+import ActionButton from '../../common/Buttons/ActionButton';
 
 const getProjectPlaceholder = (id) => `https://picsum.photos/seed/poolc-project-detail-${id}/1200/675`;
 
@@ -44,7 +53,8 @@ const normalizeProjectBody = (body) =>
     });
 
 const ProjectDetail = ({ project, member }) => {
-  const { id, thumbnailURL, name, genre, duration, body, members } = project;
+  const { id, thumbnailURL, name, genre, duration, body, members, gameURL } = project;
+  const [isGameModalOpen, setIsGameModalOpen] = useState(false);
   const projectMembers = members ?? [];
 
   const {
@@ -78,6 +88,40 @@ const ProjectDetail = ({ project, member }) => {
             </Meta>
           </TextContainer>
         </Hero>
+        {gameURL && (
+          <GameSection>
+            <ActionButton type="button" onClick={() => setIsGameModalOpen(true)}>
+              게임 열기
+            </ActionButton>
+            {' '}
+            <GameLink href={gameURL} target="_blank" rel="noopener noreferrer">
+              새 탭에서 열기
+            </GameLink>
+            <GameModal
+              title={(
+                <GameModalTitle>
+                  <GameModalIcon src={poolcIcon} alt="PoolC" />
+                  <span>{name}</span>
+                </GameModalTitle>
+              )}
+              open={isGameModalOpen}
+              onCancel={() => setIsGameModalOpen(false)}
+              footer={null}
+              centered
+              destroyOnClose
+              width="min(1200px, calc(100vw - 32px), 160vh)"
+            >
+              <GameFrame
+                title={`${name} 게임`}
+                src={gameURL}
+                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
+                allow="fullscreen; autoplay; gamepad"
+                allowFullScreen
+                referrerPolicy="no-referrer"
+              />
+            </GameModal>
+          </GameSection>
+        )}
         <IntroductionContainer>
           <Introduction>
             <BodyContainer className="here">
