@@ -16,7 +16,7 @@ const StyledInput = styled(AntdInput)`
   outline: ${colors.gray[1]};
 `;
 
-const Input = ({ valueText, labelText, typeText, nameText, error, onChangeFunc, placeholderText, disabledCondition }) => (
+const Input = ({ valueText, labelText, typeText, nameText, error, onChangeFunc, placeholderText, disabledCondition, min, max, step }) => (
   <>
     <StyledLabel htmlFor={nameText}>{labelText}</StyledLabel>
     <StyledInput
@@ -26,6 +26,9 @@ const Input = ({ valueText, labelText, typeText, nameText, error, onChangeFunc, 
       name={nameText}
       id={nameText}
       disabled={disabledCondition}
+      min={min}
+      max={max}
+      step={step}
       error={error ? 1 : 0}
       onChange={onChangeFunc}
       placeholder={placeholderText}

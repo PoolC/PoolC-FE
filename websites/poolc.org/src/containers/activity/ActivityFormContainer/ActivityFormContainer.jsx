@@ -10,6 +10,7 @@ import ActionButton from '../../../components/common/Buttons/ActionButton';
 import { CLIENT_ERROR, SUCCESS } from '../../../constants/statusCode';
 
 const isValidCapacity = (capacity) => Number.isInteger(Number(capacity)) && Number(capacity) > 0;
+const isValidHour = (hour) => Number.isInteger(Number(hour)) && Number(hour) > 0;
 
 const ActivityFormContainer = ({ match, history }) => {
   const { activityID } = match.params;
@@ -80,6 +81,11 @@ const ActivityFormContainer = ({ match, history }) => {
       onShowErrorModal();
       return;
     }
+    if (!isValidHour(hour)) {
+      setErrorMessage('회차 시간은 1시간 이상의 정수로 입력해주세요.');
+      onShowErrorModal();
+      return;
+    }
     activityAPI
       .createActivity({
         title,
@@ -114,6 +120,11 @@ const ActivityFormContainer = ({ match, history }) => {
     }
     if (!isValidCapacity(capacity)) {
       setErrorMessage('정원은 1명 이상의 정수로 입력해주세요.');
+      onShowErrorModal();
+      return;
+    }
+    if (!isValidHour(hour)) {
+      setErrorMessage('회차 시간은 1시간 이상의 정수로 입력해주세요.');
       onShowErrorModal();
       return;
     }

@@ -23,6 +23,22 @@ const ActivityAttendanceContainer = ({ match, history }) => {
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  const validateSessionValues = ({ date, hour }) => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    if (date > today) {
+      setErrorMessage('회차 날짜는 오늘 이후로 설정할 수 없습니다.');
+      onShowErrorModal();
+      return false;
+    }
+    if (!Number.isInteger(Number(hour)) || Number(hour) < 1) {
+      setErrorMessage('진행 시간은 1시간 이상의 정수로 입력해주세요.');
+      onShowErrorModal();
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     (async () => {
       const activityResponse = await activityAPI.getActivity(activityID);
@@ -70,6 +86,7 @@ const ActivityAttendanceContainer = ({ match, history }) => {
       onShowErrorModal();
       return;
     }
+    if (!validateSessionValues({ date, hour })) return;
     try {
       const sessionCreateResponse = await activityAPI.createActivitySession({
         activityID,
@@ -104,6 +121,7 @@ const ActivityAttendanceContainer = ({ match, history }) => {
       onShowErrorModal();
       return;
     }
+    if (!validateSessionValues({ date, hour })) return;
     try {
       const sessionUpdateResponse = await activityAPI.updateActivitySession({
         sessionID,

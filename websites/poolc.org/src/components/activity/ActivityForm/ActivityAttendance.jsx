@@ -32,6 +32,14 @@ import { ButtonContainer } from './ActivityForm.styles';
 import FileUploadButton from '../../common/Buttons/FileUploadButton';
 import throttle from '../../../lib/utils/throttle';
 
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const Member = ({ member, attended, handleCheckAttendance }) => {
   const [isChecked, setIsChecked] = useState(attended || false);
 
@@ -130,7 +138,7 @@ const ActivityAttendance = ({
           <StyledForm>
             <DateContainer>
               <Date>
-                <Input valueText={date} labelText="날짜" typeText="date" nameText="date" onChangeFunc={onChangeDate} placeholderText="YYYY-MM-DD" />
+                <Input valueText={date} labelText="날짜" typeText="date" nameText="date" onChangeFunc={onChangeDate} placeholderText="YYYY-MM-DD" max={getTodayDate()} />
               </Date>
             </DateContainer>
             <HourContainer>
@@ -138,7 +146,7 @@ const ActivityAttendance = ({
                 <label htmlFor="hour">진행 시간</label>
                 <p>반올림하여 정수로 입력</p>
                 <div>
-                  <HourInput value={hour} label="진행 시간" type="number" name="hour" onChange={onChangeHour} placeholder="ex) 2" />
+                  <HourInput value={hour} label="진행 시간" type="number" name="hour" min="1" step="1" onChange={onChangeHour} placeholder="ex) 2" />
                   <span style={{ marginLeft: '0.5rem' }}>시간</span>
                 </div>
               </Hour>
