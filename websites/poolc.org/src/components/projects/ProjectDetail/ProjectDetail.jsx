@@ -10,6 +10,9 @@ import {
   GameModal,
   GameModalIcon,
   GameModalTitle,
+  GameActions,
+  GamePlayButton,
+  GameNewTabLink,
   Hero,
   ImageContainer,
   Introduction,
@@ -23,13 +26,10 @@ import {
   StyledImage,
   TextContainer,
   GameFrame,
-  GameLink,
-  GameSection,
 } from './ProjectDetail.styles';
 import { PagePanel, PageShell } from '../../common/PageLayout/PageLayout';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
 import { isAuthorizedRole } from '../../../lib/utils/checkRole';
-import ActionButton from '../../common/Buttons/ActionButton';
 
 const getProjectPlaceholder = (id) => `https://picsum.photos/seed/poolc-project-detail-${id}/1200/675`;
 
@@ -76,6 +76,16 @@ const ProjectDetail = ({ project, member }) => {
                 event.currentTarget.src = getProjectPlaceholder(id);
               }}
             />
+            {gameURL && (
+              <GameActions>
+                <GamePlayButton type="button" onClick={() => setIsGameModalOpen(true)}>
+                  플레이하기
+                </GamePlayButton>
+                <GameNewTabLink href={gameURL} target="_blank" rel="noopener noreferrer">
+                  새 탭에서 플레이하기
+                </GameNewTabLink>
+              </GameActions>
+            )}
           </ImageContainer>
           <TextContainer>
             <NameContainer>
@@ -89,38 +99,29 @@ const ProjectDetail = ({ project, member }) => {
           </TextContainer>
         </Hero>
         {gameURL && (
-          <GameSection>
-            <ActionButton type="button" onClick={() => setIsGameModalOpen(true)}>
-              게임 열기
-            </ActionButton>
-            {' '}
-            <GameLink href={gameURL} target="_blank" rel="noopener noreferrer">
-              새 탭에서 열기
-            </GameLink>
-            <GameModal
-              title={(
-                <GameModalTitle>
-                  <GameModalIcon src={poolcIcon} alt="PoolC" />
-                  <span>{name}</span>
-                </GameModalTitle>
-              )}
-              open={isGameModalOpen}
-              onCancel={() => setIsGameModalOpen(false)}
-              footer={null}
-              centered
-              destroyOnClose
-              width="min(1200px, calc(100vw - 32px), 160vh)"
-            >
-              <GameFrame
-                title={`${name} 게임`}
-                src={gameURL}
-                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
-                allow="fullscreen; autoplay; gamepad"
-                allowFullScreen
-                referrerPolicy="no-referrer"
-              />
-            </GameModal>
-          </GameSection>
+          <GameModal
+            title={(
+              <GameModalTitle>
+                <GameModalIcon src={poolcIcon} alt="PoolC" />
+                <span>{name}</span>
+              </GameModalTitle>
+            )}
+            open={isGameModalOpen}
+            onCancel={() => setIsGameModalOpen(false)}
+            footer={null}
+            centered
+            destroyOnClose
+            width="min(1200px, calc(100vw - 32px), 160vh)"
+          >
+            <GameFrame
+              title={`${name} 게임`}
+              src={gameURL}
+              sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
+              allow="fullscreen; autoplay; gamepad"
+              allowFullScreen
+              referrerPolicy="no-referrer"
+            />
+          </GameModal>
         )}
         <IntroductionContainer>
           <Introduction>

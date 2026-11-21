@@ -200,12 +200,6 @@ export const Members = styled.div`
   gap: 10px;
 `;
 
-export const GameSection = styled.section`
-  width: min(90%, 1100px);
-  margin: 34px auto 0;
-  text-align: center;
-`;
-
 export const GameFrame = styled.iframe`
   display: block;
   width: 100%;
@@ -244,19 +238,72 @@ export const GameModalIcon = styled.img`
   object-fit: contain;
 `;
 
-export const GameLink = styled.a`
+export const GameActions = styled.div`
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  ${media.mobile} {
+    top: 8px;
+    right: 8px;
+    gap: 6px;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+`;
+
+export const GamePlayButton = styled.button`
   display: inline-flex;
-  min-height: 36px;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
   padding: 0 14px;
   border-radius: 8px;
   background: ${colors.mint[2]};
-  color: ${colors.gray[0]};
-  font-size: 0.875rem;
+  color: #fff;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+
+  &:hover { color: #fff; opacity: 0.84; }
+
+  ${media.mobile} {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.78rem;
+  }
+`;
+
+export const GameNewTabLink = styled.a`
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 8px;
+  background: rgba(28, 52, 46, 0.86);
+  color: #fff;
+  font-size: 0.86rem;
   font-weight: 700;
   text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
 
-  &:hover { color: ${colors.gray[0]}; opacity: 0.78; }
+  &:hover { color: #fff; background: rgba(28, 52, 46, 0.96); }
+
+  ${media.mobile} {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.78rem;
+  }
 `;
