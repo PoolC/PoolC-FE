@@ -186,7 +186,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                 <MemberContainer><h4>참여자 목록</h4>{members.length === 0 ? <p>참여자를 추가하세요.</p> : members.map((member) => <Member key={member.loginID} member={member} onDeleteMember={onDeleteMember} />)}</MemberContainer>
               </FormSection>
               <WideFormSection>
-                <SectionHeader><SectionTitle>플레이 가능한 게임</SectionTitle></SectionHeader>
+                <SectionHeader><SectionTitle>게임 파일 업로드</SectionTitle></SectionHeader>
                 <Item>
                   <GameDropZone
                     htmlFor="game-build-zip"
