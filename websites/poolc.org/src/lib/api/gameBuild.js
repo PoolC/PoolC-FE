@@ -4,6 +4,9 @@ import { getGameBuildUploadTargets } from './project';
 const MAX_ZIP_SIZE = 200 * 1024 * 1024;
 const MAX_BUILD_SIZE = 300 * 1024 * 1024;
 
+const isMacMetadataPath = (path) => path.split('/').some((segment) =>
+  segment === '__MACOSX' || segment === '.DS_Store' || segment.startsWith('._'));
+
 const readZipMetadata = (bytes) => {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const minimumOffset = Math.max(0, bytes.byteLength - 65_557);
@@ -63,7 +66,13 @@ const uploadInBatches = async (files, targets, batchSize = 4) => {
       const headers = { 'Content-Type': target.contentType };
       if (target.contentEncoding) headers['Content-Encoding'] = target.contentEncoding;
       const response = await fetch(target.uploadURL, { method: 'PUT', headers, body: data });
-      if (!response.ok) throw new Error(`${path} 업로드에 실패했습니다 (${response.status})`);
+      if (!response.ok) {
+        const errorBody = await response.text();
+        const code = errorBody.match(/<Code>([^<]+)<\/Code>/)?.[1];
+        const message = errorBody.match(/<Message>([^<]+)<\/Message>/)?.[1];
+        const details = [code, message].filter(Boolean).join(': ');
+        throw new Error(`${path} 업로드에 실패했습니다 (${response.status})${details ? ` · ${details}` : ''}`);
+      }
     }));
   }
 };
@@ -86,7 +95,7 @@ export const uploadGameBuildZip = async (zipFile) => {
   }
 
   const files = Object.entries(extracted)
-    .filter(([path]) => !path.endsWith('/'))
+    .filter(([path]) => !path.endsWith('/') && !isMacMetadataPath(path))
     .map(([path, data]) => ({ path, data }));
   const totalSize = files.reduce((sum, file) => sum + file.data.byteLength, 0);
   if (files.length === 0) throw new Error('ZIP 안에 게임 파일이 없습니다.');
