@@ -8,6 +8,13 @@ import ActionButton from '../../../components/common/Buttons/ActionButton';
 import { SUCCESS } from '../../../constants/statusCode';
 import { useMessage } from '../../../hooks/useMessage';
 
+const getProjectRequestErrorMessage = (error) => {
+  const responseData = error.response?.data;
+  if (typeof responseData === 'string' && responseData.trim()) return responseData;
+  if (typeof responseData?.message === 'string' && responseData.message.trim()) return responseData.message;
+  return '오류가 발생했습니다';
+};
+
 const AdminProjectFormContainer = ({ match, history }) => {
   const message = useMessage();
   const { projectID } = match.params;
@@ -59,7 +66,7 @@ const AdminProjectFormContainer = ({ match, history }) => {
         if (error.response?.data?.status === 403) {
           history.push(`/${MENU.FORBIDDEN}`);
         }
-        setErrorMessage('오류가 발생했습니다');
+        setErrorMessage(getProjectRequestErrorMessage(error));
         onShowErrorModal();
       });
   };
@@ -95,7 +102,7 @@ const AdminProjectFormContainer = ({ match, history }) => {
         if (error.response?.data?.status === 403) {
           history.push(`/${MENU.FORBIDDEN}`);
         }
-        setErrorMessage('오류가 발생했습니다');
+        setErrorMessage(getProjectRequestErrorMessage(error));
         onShowErrorModal();
       });
   };
