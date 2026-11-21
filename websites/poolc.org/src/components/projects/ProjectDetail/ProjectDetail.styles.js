@@ -11,6 +11,7 @@ export const Hero = styled.div`
 `;
 
 export const ImageContainer = styled.div`
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   max-height: 560px;
