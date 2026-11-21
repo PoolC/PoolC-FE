@@ -726,7 +726,7 @@ export default function RoomReservationPage() {
     const durationMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute');
     const isTiny = durationMinutes <= 30;
     const isCompact = durationMinutes < 60;
-    const shouldHideHost = durationMinutes <= 60;
+    const shouldHideHost = durationMinutes < 60;
     const start = dayjs(event.start);
     const end = dayjs(event.end);
     const timeText = `${start.format('HH:mm')}–${end.format('HH:mm')}`;
