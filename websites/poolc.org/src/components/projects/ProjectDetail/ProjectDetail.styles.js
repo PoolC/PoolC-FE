@@ -43,6 +43,9 @@ export const TextContainer = styled.div`
 export const NameContainer = styled.div`
   display: flex;
   max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 `;
 
 export const Name = styled.h1`
@@ -273,18 +276,23 @@ export const GameNewTabLink = styled.a`
 
 export const DownloadButton = styled.a`
   display: inline-flex;
-  min-height: 40px;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding: 0 16px;
-  border-radius: 8px;
+  border-radius: 50%;
   background: ${colors.mint[2]};
   color: #fff;
-  font-size: 0.9rem;
-  font-weight: 700;
   text-decoration: none;
+  font-size: 1.1rem;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 
-  &:hover { color: #fff; opacity: 0.84; text-decoration: none; }
+  &:hover { color: #fff; opacity: 0.84; transform: translateY(-1px); text-decoration: none; }
+
+  ${media.mobile} {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
 `;

@@ -88,18 +88,23 @@ const ProjectDetail = ({ project, member }) => {
           <TextContainer>
             <NameContainer>
               <Name>{name}</Name>
+              {downloadURL && (
+                <DownloadButton
+                  href={downloadURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="다운로드"
+                  title="다운로드"
+                >
+                  <DownloadOutlined aria-hidden="true" />
+                </DownloadButton>
+              )}
             </NameContainer>
             <Meta>
               <MetaGenre>{genre}</MetaGenre>
               <span aria-hidden="true">·</span>
               <Duration>{duration}</Duration>
             </Meta>
-            {downloadURL && (
-              <DownloadButton href={downloadURL} target="_blank" rel="noopener noreferrer">
-                <DownloadOutlined aria-hidden="true" />
-                다운로드
-              </DownloadButton>
-            )}
           </TextContainer>
         </Hero>
         {gameURL && <ProjectGameModal name={name} gameURL={gameURL} open={isGameModalOpen} onClose={() => setIsGameModalOpen(false)} />}
