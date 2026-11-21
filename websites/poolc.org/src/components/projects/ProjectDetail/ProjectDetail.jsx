@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import poolcIcon from '~/assets/images/poolc-icon.png';
+import { DownloadOutlined } from '@ant-design/icons';
 // FIXME: eslint issue 수정 필요. 터미널에서는 에러가 나지 않으나, 에디터에서만 에러가 나고 있음
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Viewer } from '@dialga/react-editor';
@@ -7,9 +7,10 @@ import MemberCard from '../../members/MemberCard/MemberCard';
 import {
   BodyContainer,
   Duration,
-  GameModal,
-  GameModalIcon,
-  GameModalTitle,
+  GameActions,
+  GamePlayButton,
+  GameNewTabLink,
+  DownloadButton,
   Hero,
   ImageContainer,
   Introduction,
@@ -22,14 +23,11 @@ import {
   NameContainer,
   StyledImage,
   TextContainer,
-  GameFrame,
-  GameLink,
-  GameSection,
 } from './ProjectDetail.styles';
+import ProjectGameModal from '../ProjectGameModal/ProjectGameModal';
 import { PagePanel, PageShell } from '../../common/PageLayout/PageLayout';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
 import { isAuthorizedRole } from '../../../lib/utils/checkRole';
-import ActionButton from '../../common/Buttons/ActionButton';
 
 const getProjectPlaceholder = (id) => `https://picsum.photos/seed/poolc-project-detail-${id}/1200/675`;
 
@@ -53,7 +51,7 @@ const normalizeProjectBody = (body) =>
     });
 
 const ProjectDetail = ({ project, member }) => {
-  const { id, thumbnailURL, name, genre, duration, body, members, gameURL } = project;
+  const { id, thumbnailURL, name, genre, duration, body, members, gameURL, downloadURL } = project;
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
   const projectMembers = members ?? [];
 
@@ -76,10 +74,31 @@ const ProjectDetail = ({ project, member }) => {
                 event.currentTarget.src = getProjectPlaceholder(id);
               }}
             />
+            {gameURL && (
+              <GameActions>
+                <GamePlayButton type="button" onClick={() => setIsGameModalOpen(true)}>
+                  플레이하기
+                </GamePlayButton>
+                <GameNewTabLink href={gameURL} target="_blank" rel="noopener noreferrer">
+                  새 탭에서 플레이하기
+                </GameNewTabLink>
+              </GameActions>
+            )}
           </ImageContainer>
           <TextContainer>
             <NameContainer>
               <Name>{name}</Name>
+              {downloadURL && (
+                <DownloadButton
+                  href={downloadURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="다운로드"
+                  title="다운로드"
+                >
+                  <DownloadOutlined aria-hidden="true" />
+                </DownloadButton>
+              )}
             </NameContainer>
             <Meta>
               <MetaGenre>{genre}</MetaGenre>
@@ -88,40 +107,7 @@ const ProjectDetail = ({ project, member }) => {
             </Meta>
           </TextContainer>
         </Hero>
-        {gameURL && (
-          <GameSection>
-            <ActionButton type="button" onClick={() => setIsGameModalOpen(true)}>
-              게임 열기
-            </ActionButton>
-            {' '}
-            <GameLink href={gameURL} target="_blank" rel="noopener noreferrer">
-              새 탭에서 열기
-            </GameLink>
-            <GameModal
-              title={(
-                <GameModalTitle>
-                  <GameModalIcon src={poolcIcon} alt="PoolC" />
-                  <span>{name}</span>
-                </GameModalTitle>
-              )}
-              open={isGameModalOpen}
-              onCancel={() => setIsGameModalOpen(false)}
-              footer={null}
-              centered
-              destroyOnClose
-              width="min(1200px, calc(100vw - 32px), 160vh)"
-            >
-              <GameFrame
-                title={`${name} 게임`}
-                src={gameURL}
-                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
-                allow="fullscreen; autoplay; gamepad"
-                allowFullScreen
-                referrerPolicy="no-referrer"
-              />
-            </GameModal>
-          </GameSection>
-        )}
+        {gameURL && <ProjectGameModal name={name} gameURL={gameURL} open={isGameModalOpen} onClose={() => setIsGameModalOpen(false)} />}
         <IntroductionContainer>
           <Introduction>
             <BodyContainer className="here">

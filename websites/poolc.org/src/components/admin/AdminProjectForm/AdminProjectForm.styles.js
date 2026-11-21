@@ -104,29 +104,75 @@ export const GameDropZone = styled.label`
   }
 `;
 
-export const GameUploadFile = styled.div`
-  display: flex;
+export const GameBuildUploaded = styled.div`
+  display: grid;
+  min-height: 156px;
+  width: 100%;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-  color: ${colors.brown[1]};
-  font-size: 0.88rem;
-  overflow-wrap: anywhere;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid #cfe9e1;
+  border-radius: 12px;
+  background: #f1faf7;
+  box-sizing: border-box;
 
-  a,
-  button {
+  .complete-icon {
+    color: ${colors.mint[3]};
+    font-size: 42px;
+  }
+
+  .file-info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    color: ${colors.brown[1]};
+    overflow-wrap: anywhere;
+  }
+
+  .file-info strong {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .file-info span {
+    color: ${colors.brown[0]};
+    font-size: 0.88rem;
+  }
+
+  .file-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
+  }
+
+  .file-actions a,
+  .file-actions button {
     color: ${colors.mint[3]};
     font: inherit;
+    font-size: 0.88rem;
     font-weight: 700;
   }
 
-  button {
+  .file-actions button {
     padding: 0;
     border: 0;
     background: transparent;
     cursor: pointer;
     text-decoration: underline;
+  }
+
+  .file-actions button:disabled { cursor: progress; opacity: 0.6; }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 12px;
+    padding: 18px;
+
+    .complete-icon { font-size: 34px; }
+    .file-actions { grid-column: 2; flex-wrap: wrap; white-space: normal; }
   }
 `;
 

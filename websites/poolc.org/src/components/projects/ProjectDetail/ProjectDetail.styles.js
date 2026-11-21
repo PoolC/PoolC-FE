@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { Modal } from 'antd';
 import colors from '../../../lib/styles/colors';
 import { media } from '../../../styles/responsive';
 
@@ -11,6 +10,7 @@ export const Hero = styled.div`
 `;
 
 export const ImageContainer = styled.div`
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   max-height: 560px;
@@ -43,6 +43,9 @@ export const TextContainer = styled.div`
 export const NameContainer = styled.div`
   display: flex;
   max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 `;
 
 export const Name = styled.h1`
@@ -200,63 +203,96 @@ export const Members = styled.div`
   gap: 10px;
 `;
 
-export const GameSection = styled.section`
-  width: min(90%, 1100px);
-  margin: 34px auto 0;
-  text-align: center;
-`;
-
-export const GameFrame = styled.iframe`
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 0;
-  background: #111;
-`;
-
-export const GameModal = styled(Modal)`
-  .ant-modal-content {
-    overflow: hidden;
-    padding: 0;
-  }
-
-  .ant-modal-header {
-    margin: 0;
-    padding: 16px 24px;
-  }
-
-  .ant-modal-body {
-    padding: 0;
-    line-height: 0;
-  }
-`;
-
-export const GameModalTitle = styled.div`
+export const GameActions = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
+  padding: 12px;
+  pointer-events: none;
+
+  ${media.mobile} {
+    gap: 8px;
+    row-gap: 8px;
+  }
 `;
 
-export const GameModalIcon = styled.img`
-  display: block;
-  width: 22px;
-  height: 24px;
-  object-fit: contain;
-`;
-
-export const GameLink = styled.a`
+export const GamePlayButton = styled.button`
   display: inline-flex;
-  min-height: 36px;
+  min-height: 50px;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
-  padding: 0 14px;
-  border-radius: 8px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 10px;
   background: ${colors.mint[2]};
-  color: ${colors.gray[0]};
-  font-size: 0.875rem;
+  color: #fff;
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+  pointer-events: auto;
+
+  &:hover { color: #fff; opacity: 0.84; }
+
+  ${media.mobile} {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.88rem;
+  }
+`;
+
+export const GameNewTabLink = styled.a`
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  border-radius: 10px;
+  background: rgba(28, 52, 46, 0.86);
+  color: #fff;
+  font-size: 0.98rem;
   font-weight: 700;
   text-decoration: none;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
 
-  &:hover { color: ${colors.gray[0]}; opacity: 0.78; }
+  &:hover { color: #fff; background: rgba(28, 52, 46, 0.96); }
+
+  ${media.mobile} {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.88rem;
+  }
+`;
+
+export const DownloadButton = styled.a`
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: ${colors.mint[2]};
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+
+  &:hover { color: #fff; opacity: 0.84; transform: translateY(-1px); text-decoration: none; }
+
+  ${media.mobile} {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
 `;

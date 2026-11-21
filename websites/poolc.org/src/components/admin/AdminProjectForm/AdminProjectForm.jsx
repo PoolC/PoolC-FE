@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Editor } from '@dialga/react-editor';
-import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import { Modal as AntModal, Select } from 'antd';
 import koKR from 'antd/locale/ko_KR';
 import useInput from '../../../hooks/useInput';
@@ -14,8 +14,7 @@ import {
   TitleContainer, WideFormSection,
 } from '../AdminInfo/AdminInfo.styles';
 import {
-  ButtonContainer, FieldHeader, MemberBlock, MemberContainer, MemberInfo, MemberSelect, ProjectDatePicker, StyledSelect, ThumbnailHeader,
-  GameDropZone, GameUploadFile,
+  ButtonContainer, FieldHeader, GameBuildUploaded, GameDropZone, MemberBlock, MemberContainer, MemberInfo, MemberSelect, ProjectDatePicker, StyledSelect, ThumbnailHeader,
 } from './AdminProjectForm.styles';
 import { WhiteNarrowBlock } from '../../../styles/common/Block.styles';
 import FileUploadButton from '../../common/Buttons/FileUploadButton';
@@ -24,6 +23,7 @@ import getFileUrl from '../../../lib/utils/getFileUrl';
 import { dayjs } from '../../../lib/utils/dayjs';
 import throttle from '../../../lib/utils/throttle';
 import { uploadGameBuildZip } from '../../../lib/api/gameBuild';
+import { deleteProjectGameBuild, deleteUnattachedGameBuild } from '../../../lib/api/project';
 
 const Member = ({ member, onDeleteMember }) => {
   const confirmRemove = () => AntModal.confirm({
@@ -47,7 +47,6 @@ const Member = ({ member, onDeleteMember }) => {
 
 const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, members, searchMembers, onAddMember, onDeleteMember, project, errorMessage, buttons, errorModalVisible, onCloseErrorModal }) => {
   const editorRef = useRef();
-  const gameFileInputRef = useRef();
   const [searchMember, setSearchMember] = useState('');
   const [name, onChangeName] = useInput(project ? project.name : '', notEmptyValidation);
   const [thumbnailURL, setThumbnailURL] = useState(project ? project.thumbnailURL : '');
@@ -58,6 +57,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
   const [description, onChangeDescription] = useInput(project ? project.description : '', notEmptyValidation);
   const [body, setBody] = useState(project ? project.body : '');
   const [gameURL, setGameURL] = useState(project ? project.gameURL ?? '' : '');
+  const [downloadURL, setDownloadURL] = useState(project ? project.downloadURL ?? '' : '');
   const [gameUploadState, setGameUploadState] = useState('');
   const [isUploadingGame, setIsUploadingGame] = useState(false);
   const [isGameDragActive, setIsGameDragActive] = useState(false);
@@ -84,11 +84,11 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
 
   const submitProject = throttle((event) => {
     event.preventDefault();
-    onCreateProject({ name, genre, category, startDate, endDate, thumbnailURL, description, body, gameURL });
+    onCreateProject({ name, genre, category, startDate, endDate, thumbnailURL, description, body, gameURL, downloadURL });
   }, 1000);
   const updateProject = (event) => {
     event.preventDefault();
-    onUpdateProject({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL });
+    onUpdateProject({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL, downloadURL });
   };
   const selectMember = (loginId) => {
     const member = searchMembers.find((item) => item.loginID === loginId);
@@ -136,6 +136,25 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
     }
     await uploadGameBuildFile(files[0]);
   };
+  const onUnlinkGame = async () => {
+    if (!gameURL) return;
+    setIsUploadingGame(true);
+    setGameUploadState('게임 파일을 S3에서 삭제하는 중입니다.');
+    try {
+      if (project?.id) {
+        await deleteProjectGameBuild(project.id);
+      } else {
+        await deleteUnattachedGameBuild(gameURL);
+      }
+      setGameURL('');
+      setSelectedGameFile(null);
+      setGameUploadState('게임 연결을 해제하고 S3 파일을 삭제했습니다.');
+    } catch (error) {
+      setGameUploadState(error.response?.data?.message || error.message || '게임 파일 삭제에 실패했습니다.');
+    } finally {
+      setIsUploadingGame(false);
+    }
+  };
 
   return (
     <>
@@ -146,7 +165,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
           <StyledForm>
             <FormGrid>
               <FormSection>
-                <SectionTitle>기본 정보</SectionTitle>
+                <SectionTitle>필수 정보</SectionTitle>
                 <Item><label htmlFor="project-name">프로젝트 이름</label><StyledInput id="project-name" value={name} onChange={onChangeName} placeholder="프로젝트 이름" /></Item>
                 <Item>
                   <label htmlFor="project-category">카테고리</label>
@@ -154,18 +173,66 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                     <option value="" disabled>카테고리를 선택하세요</option><option value="WEB_APP">웹앱</option><option value="GAME">게임</option><option value="OTHER">기타</option>
                   </StyledSelect>
                 </Item>
-                <Item><label htmlFor="project-genre">장르</label><StyledInput id="project-genre" value={genre} onChange={onChangeGenre} placeholder="예: 모바일 게임, 슈팅, 웹" /></Item>
                 <Item>
                   <label htmlFor="project-start-date">프로젝트 시작일</label>
                   <ProjectDatePicker id="project-start-date" locale={koKR.DatePicker} format="YYYY년 MM월 DD일" value={startDate ? dayjs(startDate) : null} onChange={(date) => setStartDate(date ? date.format('YYYY-MM-DD') : '')} />
                 </Item>
+              </FormSection>
+              <FormSection>
+                <SectionTitle>선택 정보</SectionTitle>
+                <Item><label htmlFor="project-genre">장르</label><StyledInput id="project-genre" value={genre} onChange={onChangeGenre} placeholder="예: 모바일 게임, 슈팅, 웹" /></Item>
                 <Item>
                   <label htmlFor="project-end-date">프로젝트 종료일</label>
                   <ProjectDatePicker id="project-end-date" locale={koKR.DatePicker} format="YYYY년 MM월 DD일" value={endDate ? dayjs(endDate) : null} onChange={(date) => setEndDate(date ? date.format('YYYY-MM-DD') : '')} />
                 </Item>
+                <Item>
+                  <label htmlFor="project-download-url">다운로드 URL</label>
+                  <StyledInput
+                    id="project-download-url"
+                    type="url"
+                    maxLength={2048}
+                    value={downloadURL}
+                    onChange={(event) => setDownloadURL(event.target.value)}
+                    placeholder="https://..."
+                  />
+                </Item>
               </FormSection>
               <FormSection>
-                <SectionTitle>참여자</SectionTitle>
+                <SectionTitle>게임 파일 업로드</SectionTitle>
+                <Item>
+                  {gameURL ? (
+                    <GameBuildUploaded>
+                      <CheckCircleFilled className="complete-icon" aria-hidden="true" />
+                      <div className="file-info">
+                        <strong>게임 파일 업로드 완료</strong>
+                        <span>{selectedGameFile?.name || '등록된 게임 빌드'}</span>
+                      </div>
+                      <div className="file-actions">
+                        <a href={gameURL} target="_blank" rel="noreferrer">게임 열기</a>
+                        <button type="button" onClick={onUnlinkGame} disabled={isUploadingGame}>연결 해제</button>
+                      </div>
+                    </GameBuildUploaded>
+                  ) : (
+                    <GameDropZone
+                      htmlFor="game-build-zip"
+                      data-active={isGameDragActive}
+                      data-disabled={isUploadingGame}
+                      onDragEnter={onGameDragOver}
+                      onDragOver={onGameDragOver}
+                      onDragLeave={onGameDragLeave}
+                      onDrop={onGameDrop}
+                    >
+                      <input id="game-build-zip" type="file" accept=".zip,application/zip" onChange={onGameBuildSelected} disabled={isUploadingGame} />
+                      <InboxOutlined aria-hidden="true" />
+                      <span className="drop-title">{isGameDragActive ? '여기에 놓아 업로드하세요' : 'ZIP 파일을 여기에 끌어다 놓으세요'}</span>
+                      <span className="drop-action">또는 파일 선택</span>
+                    </GameDropZone>
+                  )}
+                  {gameUploadState && <p role="status">{gameUploadState}</p>}
+                </Item>
+              </FormSection>
+              <FormSection>
+                <SectionTitle>참가자</SectionTitle>
                 <Item>
                   <label htmlFor="member-search">회원 검색</label>
                   <MemberSelect
@@ -185,28 +252,6 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                 </Item>
                 <MemberContainer><h4>참여자 목록</h4>{members.length === 0 ? <p>참여자를 추가하세요.</p> : members.map((member) => <Member key={member.loginID} member={member} onDeleteMember={onDeleteMember} />)}</MemberContainer>
               </FormSection>
-              <WideFormSection>
-                <SectionHeader><SectionTitle>플레이 가능한 게임</SectionTitle></SectionHeader>
-                <Item>
-                  <GameDropZone
-                    htmlFor="game-build-zip"
-                    data-active={isGameDragActive}
-                    data-disabled={isUploadingGame}
-                    onDragEnter={onGameDragOver}
-                    onDragOver={onGameDragOver}
-                    onDragLeave={onGameDragLeave}
-                    onDrop={onGameDrop}
-                  >
-                    <input ref={gameFileInputRef} id="game-build-zip" type="file" accept=".zip,application/zip" onChange={onGameBuildSelected} disabled={isUploadingGame} />
-                    <InboxOutlined aria-hidden="true" />
-                    <span className="drop-title">{isGameDragActive ? '여기에 놓아 업로드하세요' : 'ZIP 파일을 여기에 끌어다 놓으세요'}</span>
-                    <span className="drop-action">또는 파일 선택</span>
-                  </GameDropZone>
-                  {selectedGameFile && <GameUploadFile>{selectedGameFile.name}</GameUploadFile>}
-                  {gameURL && <GameUploadFile>게임 연결됨 · <a href={gameURL} target="_blank" rel="noreferrer">새 탭에서 열기</a> <button type="button" onClick={() => { setGameURL(''); setSelectedGameFile(null); setGameUploadState('게임 연결을 해제했습니다. 수정 내용을 저장하면 반영됩니다.'); }}>연결 해제</button></GameUploadFile>}
-                  {gameUploadState && <p role="status">{gameUploadState}</p>}
-                </Item>
-              </WideFormSection>
               <WideFormSection>
                 <ThumbnailHeader>
                   <SectionHeader><SectionTitle>썸네일 이미지</SectionTitle><SectionSummary>프로젝트 목록 카드에 표시됩니다.</SectionSummary></SectionHeader>

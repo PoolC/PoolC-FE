@@ -16,10 +16,15 @@ const ProjectListContainer = () => {
     })();
   }, []);
 
-  const categoryProjects = useMemo(
-    () => (category === 'ALL' ? projects : projects?.filter((project) => project.category === category)),
-    [category, projects],
-  );
+  const categoryProjects = useMemo(() => {
+    const filteredProjects = category === 'ALL'
+      ? projects
+      : projects?.filter((project) => project.category === category);
+
+    if (category !== 'GAME' || !filteredProjects) return filteredProjects;
+
+    return [...filteredProjects].sort((first, second) => Number(Boolean(second.gameURL)) - Number(Boolean(first.gameURL)));
+  }, [category, projects]);
 
   return <ProjectList projects={categoryProjects} loading={loading} category={category} onCategoryChange={setCategory} />;
 };

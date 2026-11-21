@@ -29,6 +29,7 @@ export const ProjectCardBlock = styled.li`
 `;
 
 export const Card = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   background-color: ${colors.mint[0]};
@@ -224,11 +225,53 @@ export const ProjectDescription = styled.p`
 `;
 
 export const StyledLink = styled(Link)`
-  display: block;
+  display: flex;
   width: 100%;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
   color: ${colors.brown[1]};
   text-decoration: none;
   &:hover {
     text-decoration: none;
+  }
+`;
+
+export const GamePlayLink = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(28, 52, 46, 0.86);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+  transition: background 0.18s ease, transform 0.18s ease;
+
+  svg { font-size: 0.95rem; }
+
+  &:hover {
+    color: #fff;
+    background: ${colors.mint[3]};
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  [data-variant='home'] &,
+  [data-variant='member-detail'] & {
+    display: none;
   }
 `;
