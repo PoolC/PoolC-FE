@@ -241,70 +241,71 @@ export const GameModalIcon = styled.img`
 
 export const GameActions = styled.div`
   position: absolute;
-  top: 14px;
-  right: 14px;
+  inset: 0;
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  padding: 12px;
+  pointer-events: none;
 
   ${media.mobile} {
-    top: 8px;
-    right: 8px;
-    gap: 6px;
-    flex-direction: column;
-    align-items: flex-end;
+    gap: 8px;
+    row-gap: 8px;
   }
 `;
 
 export const GamePlayButton = styled.button`
   display: inline-flex;
-  min-height: 38px;
+  min-height: 50px;
   align-items: center;
   justify-content: center;
-  padding: 0 14px;
-  border-radius: 8px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 10px;
   background: ${colors.mint[2]};
   color: #fff;
   font: inherit;
-  font-size: 0.86rem;
+  font-size: 0.98rem;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
   cursor: pointer;
   transition: opacity 0.18s ease;
+  pointer-events: auto;
 
   &:hover { color: #fff; opacity: 0.84; }
 
   ${media.mobile} {
-    min-height: 34px;
-    padding: 0 10px;
-    font-size: 0.78rem;
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.88rem;
   }
 `;
 
 export const GameNewTabLink = styled.a`
   display: inline-flex;
-  min-height: 38px;
+  min-height: 50px;
   align-items: center;
   justify-content: center;
-  padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  border-radius: 8px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  border-radius: 10px;
   background: rgba(28, 52, 46, 0.86);
   color: #fff;
-  font-size: 0.86rem;
+  font-size: 0.98rem;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(4px);
+  pointer-events: auto;
 
   &:hover { color: #fff; background: rgba(28, 52, 46, 0.96); }
 
   ${media.mobile} {
-    min-height: 34px;
-    padding: 0 10px;
-    font-size: 0.78rem;
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.88rem;
   }
 `;
