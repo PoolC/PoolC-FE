@@ -29,6 +29,7 @@ export const ProjectCardBlock = styled.li`
 `;
 
 export const Card = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   background-color: ${colors.mint[0]};
@@ -237,23 +238,33 @@ export const StyledLink = styled(Link)`
 `;
 
 export const GamePlayLink = styled.a`
-  display: flex;
-  min-height: 38px;
-  flex: 0 0 auto;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+  display: inline-flex;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
-  border-radius: 8px;
-  background: ${colors.mint[2]};
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(28, 52, 46, 0.86);
   color: #fff;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
-  transition: opacity 0.18s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+  transition: background 0.18s ease, transform 0.18s ease;
+
+  svg { font-size: 0.95rem; }
 
   &:hover {
     color: #fff;
-    opacity: 0.82;
+    background: ${colors.mint[3]};
+    transform: translateY(-1px);
     text-decoration: none;
   }
 

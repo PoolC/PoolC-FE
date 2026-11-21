@@ -1,3 +1,4 @@
+import { PlayCircleFilled } from '@ant-design/icons';
 import { MENU } from '../../../constants/menus';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
 import {
@@ -70,7 +71,8 @@ const ProjectCard = ({ project, variant = 'default' }) => {
         </StyledLink>
         {variant === 'default' && gameURL && (
           <GamePlayLink href={gameURL} target="_blank" rel="noopener noreferrer">
-            게임 플레이
+            <PlayCircleFilled aria-hidden="true" />
+            <span>플레이하기</span>
           </GamePlayLink>
         )}
       </Card>
