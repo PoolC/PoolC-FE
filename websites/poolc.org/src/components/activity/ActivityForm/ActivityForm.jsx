@@ -198,7 +198,7 @@ const ActivityForm = ({ activity, onCreateActivity, onUpdateActivity, errorMessa
                       <StyledInput value={classHour} type="text" name="classHour" onChange={onChangeClassHour} placeholder="ex) 매주 금요일 14시" />
                     </HourContainer>
                     <HourContainer>
-                      <StyledInput value={hour} type="number" name="hour" onChange={onChangeHour} placeholder="ex) 2" style={{ width: '6rem' }} />
+                      <StyledInput value={hour} type="number" name="hour" min="1" step="1" onChange={onChangeHour} placeholder="ex) 2" style={{ width: '6rem' }} />
                       <span>시간 진행</span>
                     </HourContainer>
                   </Item>

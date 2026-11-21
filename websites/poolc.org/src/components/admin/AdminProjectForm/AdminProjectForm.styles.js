@@ -40,10 +40,10 @@ export const ThumbnailHeader = styled.div`
   justify-content: space-between;
   gap: 16px;
 
-  > button {
-    flex: 0 0 auto;
+  > div[role='group'] {
+    flex: 0 1 auto;
+    min-width: 0;
     margin: 0;
-    white-space: nowrap;
   }
 `;
 
