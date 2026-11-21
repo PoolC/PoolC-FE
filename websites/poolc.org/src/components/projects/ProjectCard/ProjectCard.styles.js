@@ -224,11 +224,41 @@ export const ProjectDescription = styled.p`
 `;
 
 export const StyledLink = styled(Link)`
-  display: block;
+  display: flex;
   width: 100%;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
   color: ${colors.brown[1]};
   text-decoration: none;
   &:hover {
     text-decoration: none;
+  }
+`;
+
+export const GamePlayLink = styled.a`
+  display: flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  border-radius: 8px;
+  background: ${colors.mint[2]};
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+
+  &:hover {
+    color: #fff;
+    opacity: 0.82;
+    text-decoration: none;
+  }
+
+  [data-variant='home'] &,
+  [data-variant='member-detail'] & {
+    display: none;
   }
 `;

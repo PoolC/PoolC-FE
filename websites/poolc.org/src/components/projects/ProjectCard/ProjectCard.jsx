@@ -5,6 +5,7 @@ import {
   ProjectCardBlock,
   ProjectDescription,
   ProjectGenre,
+  GamePlayLink,
   ProjectThumbnail,
   ProjectTitle,
   ProjectTrack,
@@ -37,13 +38,13 @@ const getProjectThumbnail = ({ id, thumbnailURL }) => {
 };
 
 const ProjectCard = ({ project, variant = 'default' }) => {
-  const { id, thumbnailURL, name, genre, description } = project;
+  const { id, thumbnailURL, name, genre, description, gameURL } = project;
   const { title, track } = splitProjectName(name);
 
   return (
-    <StyledLink to={`/${MENU.PROJECT}/${id}`}>
-      <ProjectCardBlock data-variant={variant}>
-        <Card data-variant={variant}>
+    <ProjectCardBlock data-variant={variant}>
+      <Card data-variant={variant}>
+        <StyledLink to={`/${MENU.PROJECT}/${id}`}>
           <ThumbnailContainer>
             <ProjectThumbnail
               src={getProjectThumbnail({ id, thumbnailURL })}
@@ -66,9 +67,14 @@ const ProjectCard = ({ project, variant = 'default' }) => {
               <ProjectDescription>{description}</ProjectDescription>
             </>}
           </TextContent>
-        </Card>
-      </ProjectCardBlock>
-    </StyledLink>
+        </StyledLink>
+        {variant === 'default' && gameURL && (
+          <GamePlayLink href={gameURL} target="_blank" rel="noopener noreferrer">
+            게임 플레이
+          </GamePlayLink>
+        )}
+      </Card>
+    </ProjectCardBlock>
   );
 };
 
