@@ -147,7 +147,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
           <StyledForm>
             <FormGrid>
               <FormSection>
-                <SectionTitle>기본 정보</SectionTitle>
+                <SectionTitle>필수 정보</SectionTitle>
                 <Item><label htmlFor="project-name">프로젝트 이름</label><StyledInput id="project-name" value={name} onChange={onChangeName} placeholder="프로젝트 이름" /></Item>
                 <Item>
                   <label htmlFor="project-category">카테고리</label>
@@ -155,11 +155,14 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                     <option value="" disabled>카테고리를 선택하세요</option><option value="WEB_APP">웹앱</option><option value="GAME">게임</option><option value="OTHER">기타</option>
                   </StyledSelect>
                 </Item>
-                <Item><label htmlFor="project-genre">장르</label><StyledInput id="project-genre" value={genre} onChange={onChangeGenre} placeholder="예: 모바일 게임, 슈팅, 웹" /></Item>
                 <Item>
                   <label htmlFor="project-start-date">프로젝트 시작일</label>
                   <ProjectDatePicker id="project-start-date" locale={koKR.DatePicker} format="YYYY년 MM월 DD일" value={startDate ? dayjs(startDate) : null} onChange={(date) => setStartDate(date ? date.format('YYYY-MM-DD') : '')} />
                 </Item>
+              </FormSection>
+              <FormSection>
+                <SectionTitle>선택 정보</SectionTitle>
+                <Item><label htmlFor="project-genre">장르</label><StyledInput id="project-genre" value={genre} onChange={onChangeGenre} placeholder="예: 모바일 게임, 슈팅, 웹" /></Item>
                 <Item>
                   <label htmlFor="project-end-date">프로젝트 종료일</label>
                   <ProjectDatePicker id="project-end-date" locale={koKR.DatePicker} format="YYYY년 MM월 DD일" value={endDate ? dayjs(endDate) : null} onChange={(date) => setEndDate(date ? date.format('YYYY-MM-DD') : '')} />
@@ -177,28 +180,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                 </Item>
               </FormSection>
               <FormSection>
-                <SectionTitle>참여자</SectionTitle>
-                <Item>
-                  <label htmlFor="member-search">회원 검색</label>
-                  <MemberSelect
-                    id="member-search"
-                    showSearch
-                    allowClear
-                    filterOption={false}
-                    searchValue={searchMember}
-                    value={null}
-                    placeholder="회원 이름으로 검색"
-                    open={searchMember.trim().length > 0}
-                    onSearch={setSearchMember}
-                    onSelect={selectMember}
-                    onClear={() => setSearchMember('')}
-                    options={searchMembers.map((member) => ({ value: member.loginID, label: `${member.name} · ${member.studentID} · ${member.department}` }))}
-                  />
-                </Item>
-                <MemberContainer><h4>참여자 목록</h4>{members.length === 0 ? <p>참여자를 추가하세요.</p> : members.map((member) => <Member key={member.loginID} member={member} onDeleteMember={onDeleteMember} />)}</MemberContainer>
-              </FormSection>
-              <WideFormSection>
-                <SectionHeader><SectionTitle>게임 파일 업로드</SectionTitle></SectionHeader>
+                <SectionTitle>게임 파일 업로드</SectionTitle>
                 <Item>
                   <GameDropZone
                     htmlFor="game-build-zip"
@@ -218,7 +200,28 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                   {gameURL && <GameUploadFile>게임 연결됨 · <a href={gameURL} target="_blank" rel="noreferrer">새 탭에서 열기</a> <button type="button" onClick={() => { setGameURL(''); setSelectedGameFile(null); setGameUploadState('게임 연결을 해제했습니다. 수정 내용을 저장하면 반영됩니다.'); }}>연결 해제</button></GameUploadFile>}
                   {gameUploadState && <p role="status">{gameUploadState}</p>}
                 </Item>
-              </WideFormSection>
+              </FormSection>
+              <FormSection>
+                <SectionTitle>참가자</SectionTitle>
+                <Item>
+                  <label htmlFor="member-search">회원 검색</label>
+                  <MemberSelect
+                    id="member-search"
+                    showSearch
+                    allowClear
+                    filterOption={false}
+                    searchValue={searchMember}
+                    value={null}
+                    placeholder="회원 이름으로 검색"
+                    open={searchMember.trim().length > 0}
+                    onSearch={setSearchMember}
+                    onSelect={selectMember}
+                    onClear={() => setSearchMember('')}
+                    options={searchMembers.map((member) => ({ value: member.loginID, label: `${member.name} · ${member.studentID} · ${member.department}` }))}
+                  />
+                </Item>
+                <MemberContainer><h4>참여자 목록</h4>{members.length === 0 ? <p>참여자를 추가하세요.</p> : members.map((member) => <Member key={member.loginID} member={member} onDeleteMember={onDeleteMember} />)}</MemberContainer>
+              </FormSection>
               <WideFormSection>
                 <ThumbnailHeader>
                   <SectionHeader><SectionTitle>썸네일 이미지</SectionTitle><SectionSummary>프로젝트 목록 카드에 표시됩니다.</SectionSummary></SectionHeader>
