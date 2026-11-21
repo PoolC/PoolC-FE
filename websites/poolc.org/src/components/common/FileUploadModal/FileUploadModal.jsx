@@ -18,7 +18,7 @@ import {
   FileSizeAlert,
 } from './FileUploadModal.styles.js';
 
-const FileUploadModal = ({ visible, file, onUploadFile, onBrowseFile, onCancel }) => {
+const FileUploadModal = ({ visible, file, pendingCount = 0, isUploading = false, multiple = false, onUploadFile, onBrowseFile, onCancel }) => {
   const [animate, setAnimate] = useState(false);
   const [localVisible, setLocalVisible] = useState(visible);
 
@@ -43,16 +43,16 @@ const FileUploadModal = ({ visible, file, onUploadFile, onBrowseFile, onCancel }
           <StyledForm encType="multipart/form-data" onSubmit={onUploadFile}>
             <FileNameContainer>
               <FileLabel>선택된 파일</FileLabel>
-              {file ? <FileName>{file?.name}</FileName> : <FileName>선택된 파일이 없습니다</FileName>}
+              {file ? <FileName>{file?.name}{pendingCount > 0 && ` 외 ${pendingCount}개`}</FileName> : <FileName>선택된 파일이 없습니다</FileName>}
             </FileNameContainer>
             <FileSizeAlert>* 파일 업로드는 50mb까지 가능합니다.</FileSizeAlert>
             <ButtonContainer>
               <StyledFileButton className="browse-file" htmlFor="my_file" onChange={onBrowseFile}>
                 파일 찾기
               </StyledFileButton>
-              <StyledActionButton className="upload-file">이 파일 첨부</StyledActionButton>
+              <StyledActionButton className="upload-file" disabled={isUploading}>{isUploading ? '업로드 중…' : '이 파일 첨부'}</StyledActionButton>
             </ButtonContainer>
-            <StyledFileInput type="file" onChange={onBrowseFile} id="my_file" />
+            <StyledFileInput type="file" accept="image/png,image/jpeg,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint" multiple={multiple} disabled={isUploading} onChange={onBrowseFile} id="my_file" />
           </StyledForm>
         </ContentContainer>
       </ModalContainer>
