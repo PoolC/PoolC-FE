@@ -309,3 +309,21 @@ export const GameNewTabLink = styled.a`
     font-size: 0.88rem;
   }
 `;
+
+export const DownloadButton = styled.a`
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: ${colors.mint[2]};
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover { color: #fff; opacity: 0.84; text-decoration: none; }
+`;

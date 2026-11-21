@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { DownloadOutlined } from '@ant-design/icons';
 import poolcIcon from '~/assets/images/poolc-icon.png';
 // FIXME: eslint issue 수정 필요. 터미널에서는 에러가 나지 않으나, 에디터에서만 에러가 나고 있음
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -13,6 +14,7 @@ import {
   GameActions,
   GamePlayButton,
   GameNewTabLink,
+  DownloadButton,
   Hero,
   ImageContainer,
   Introduction,
@@ -53,7 +55,7 @@ const normalizeProjectBody = (body) =>
     });
 
 const ProjectDetail = ({ project, member }) => {
-  const { id, thumbnailURL, name, genre, duration, body, members, gameURL } = project;
+  const { id, thumbnailURL, name, genre, duration, body, members, gameURL, downloadURL } = project;
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
   const projectMembers = members ?? [];
 
@@ -96,6 +98,12 @@ const ProjectDetail = ({ project, member }) => {
               <span aria-hidden="true">·</span>
               <Duration>{duration}</Duration>
             </Meta>
+            {downloadURL && (
+              <DownloadButton href={downloadURL} target="_blank" rel="noopener noreferrer">
+                <DownloadOutlined aria-hidden="true" />
+                다운로드
+              </DownloadButton>
+            )}
           </TextContainer>
         </Hero>
         {gameURL && (

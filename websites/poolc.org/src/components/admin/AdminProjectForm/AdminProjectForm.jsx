@@ -58,6 +58,7 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
   const [description, onChangeDescription] = useInput(project ? project.description : '', notEmptyValidation);
   const [body, setBody] = useState(project ? project.body : '');
   const [gameURL, setGameURL] = useState(project ? project.gameURL ?? '' : '');
+  const [downloadURL, setDownloadURL] = useState(project ? project.downloadURL ?? '' : '');
   const [gameUploadState, setGameUploadState] = useState('');
   const [isUploadingGame, setIsUploadingGame] = useState(false);
   const [isGameDragActive, setIsGameDragActive] = useState(false);
@@ -84,11 +85,11 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
 
   const submitProject = throttle((event) => {
     event.preventDefault();
-    onCreateProject({ name, genre, category, startDate, endDate, thumbnailURL, description, body, gameURL });
+    onCreateProject({ name, genre, category, startDate, endDate, thumbnailURL, description, body, gameURL, downloadURL });
   }, 1000);
   const updateProject = (event) => {
     event.preventDefault();
-    onUpdateProject({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL });
+    onUpdateProject({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL, downloadURL });
   };
   const selectMember = (loginId) => {
     const member = searchMembers.find((item) => item.loginID === loginId);
@@ -205,6 +206,20 @@ const AdminProjectForm = ({ onCreateProject, onSearchMember, onUpdateProject, me
                   {selectedGameFile && <GameUploadFile>{selectedGameFile.name}</GameUploadFile>}
                   {gameURL && <GameUploadFile>게임 연결됨 · <a href={gameURL} target="_blank" rel="noreferrer">새 탭에서 열기</a> <button type="button" onClick={() => { setGameURL(''); setSelectedGameFile(null); setGameUploadState('게임 연결을 해제했습니다. 수정 내용을 저장하면 반영됩니다.'); }}>연결 해제</button></GameUploadFile>}
                   {gameUploadState && <p role="status">{gameUploadState}</p>}
+                </Item>
+              </WideFormSection>
+              <WideFormSection>
+                <SectionTitle>다운로드 링크</SectionTitle>
+                <Item>
+                  <label htmlFor="project-download-url">다운로드 URL</label>
+                  <StyledInput
+                    id="project-download-url"
+                    type="url"
+                    maxLength={2048}
+                    value={downloadURL}
+                    onChange={(event) => setDownloadURL(event.target.value)}
+                    placeholder="https://..."
+                  />
                 </Item>
               </WideFormSection>
               <WideFormSection>
