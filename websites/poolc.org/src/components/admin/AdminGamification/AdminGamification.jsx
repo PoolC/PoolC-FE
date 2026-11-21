@@ -1,4 +1,4 @@
-import { InputNumber, Pagination, Select, Spin, Tag, Typography } from 'antd';
+import { Input, InputNumber, Pagination, Select, Spin, Tag, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,7 @@ import * as gameAPI from '~/lib/api/gamification';
 import * as memberAPI from '~/lib/api/member';
 import { WhiteNarrowBlock } from '~/styles/common/Block.styles';
 import ActionButton from '../../common/Buttons/ActionButton';
+import { ProjectListRow, ProjectTable, ProjectTableContainer, TableHead } from '../AdminProject/AdminProject.styles';
 
 export default function AdminGamification() {
   const { styles } = useStyles();
@@ -25,9 +26,11 @@ export default function AdminGamification() {
   const [recipient, setRecipient] = useState('');
   const [collectibleId, setCollectibleId] = useState('');
   const [shiny, setShiny] = useState(false);
+  const [pokemonReason, setPokemonReason] = useState('');
   const [ballRecipient, setBallRecipient] = useState('');
   const [ballType, setBallType] = useState('NORMAL');
   const [ballAmount, setBallAmount] = useState(1);
+  const [ballReason, setBallReason] = useState('');
   const [granting, setGranting] = useState(false);
   const [grantingBalls, setGrantingBalls] = useState(false);
   const recipientOptions = useMemo(() => members
@@ -89,11 +92,12 @@ export default function AdminGamification() {
   };
 
   const grantPokemon = async () => {
-    if (!canGrant || !recipient || recipient === memberId || !collectibleId) return;
+    if (!canGrant || !recipient || recipient === memberId || !collectibleId || !pokemonReason.trim()) return;
     setGranting(true);
     try {
-      await gameAPI.grantPokemon({ loginID: recipient, collectibleId: Number(collectibleId), shiny });
+      await gameAPI.grantPokemon({ loginID: recipient, collectibleId: Number(collectibleId), shiny, reason: pokemonReason.trim() });
       message.success('포켓몬을 지급했습니다.');
+      setPokemonReason('');
       setHistory((await gameAPI.getPokemonGrantHistory()).data || []);
     } catch (error) {
       message.error(error.response?.data?.message ?? '포켓몬 지급에 실패했습니다.');
@@ -103,11 +107,12 @@ export default function AdminGamification() {
   };
 
   const grantBalls = async () => {
-    if (!canGrant || !ballRecipient || ballRecipient === memberId || !ballType || !ballAmount || ballAmount < 1) return;
+    if (!canGrant || !ballRecipient || ballRecipient === memberId || !ballType || !ballAmount || ballAmount < 1 || !ballReason.trim()) return;
     setGrantingBalls(true);
     try {
-      await gameAPI.grantBalls({ loginID: ballRecipient, ballType, amount: ballAmount });
+      await gameAPI.grantBalls({ loginID: ballRecipient, ballType, amount: ballAmount, reason: ballReason.trim() });
       message.success(`${ballType === 'MASTER' ? '마스터볼' : '포켓볼'} ${ballAmount}개를 지급했습니다.`);
+      setBallReason('');
       setBallHistory((await gameAPI.getBallGrantHistory()).data || []);
       setBallHistoryPage(1);
     } catch (error) {
@@ -150,8 +155,11 @@ export default function AdminGamification() {
               style={{ width: '100%' }}
             />
           </label>
+          <label className={styles.grantReason}>지급 사유 (필수)
+            <Input.TextArea required rows={2} maxLength={500} showCount value={pokemonReason} onChange={(event) => setPokemonReason(event.target.value)} placeholder="포켓몬 지급 사유를 입력하세요" />
+          </label>
           <label className={styles.shinyToggle}><input type="checkbox" checked={shiny} onChange={(event) => setShiny(event.target.checked)} /> 이로치로 지급</label>
-          <ActionButton disabled={!recipient || !collectibleId || granting} onClick={grantPokemon}>{granting ? '지급 중…' : '지급하기'}</ActionButton>
+          <div className={styles.grantActions}><ActionButton disabled={!recipient || !collectibleId || !pokemonReason.trim() || granting} onClick={grantPokemon}>{granting ? '지급 중…' : '지급하기'}</ActionButton></div>
         </div>
       </section>
       <section className={styles.grantSection}>
@@ -180,37 +188,49 @@ export default function AdminGamification() {
           <label>수량
             <InputNumber min={1} precision={0} value={ballAmount} onChange={(value) => setBallAmount(value || 1)} style={{ width: '100%' }} />
           </label>
-          <ActionButton disabled={!ballRecipient || grantingBalls} onClick={grantBalls}>{grantingBalls ? '지급 중…' : '지급하기'}</ActionButton>
+          <label className={styles.grantReason}>지급 사유 (필수)
+            <Input.TextArea required rows={2} maxLength={500} showCount value={ballReason} onChange={(event) => setBallReason(event.target.value)} placeholder="포켓볼 지급 사유를 입력하세요" />
+          </label>
+          <div className={styles.grantActions}><ActionButton disabled={!ballRecipient || !ballReason.trim() || grantingBalls} onClick={grantBalls}>{grantingBalls ? '지급 중…' : '지급하기'}</ActionButton></div>
         </div>
       </section>
       <section className={styles.historySection}>
         <h2 className={styles.title}>포켓볼 지급 기록</h2>
         {ballHistory.length === 0 ? <div className={styles.emptyState}>포켓볼 지급 기록이 없습니다.</div> : (
-          <div className={styles.historyList}>
-            {ballHistory.slice((ballHistoryPage - 1) * 20, ballHistoryPage * 20).map((entry) => (
-              <article className={`${styles.historyItem} ${styles.ballHistoryItem}`} key={entry.transactionId}>
-                <div><strong>{entry.memberName || entry.memberLoginID}</strong><span>{entry.ballType === 'MASTER' ? '마스터볼' : '포켓볼'} {entry.amount}개</span></div>
-                <div><span>{entry.grantorName || '관리자'}</span><small>{entry.grantSource === 'LEGACY_SQL' ? '기존 SQL 지급' : '관리자 지급'}</small></div>
-                <time>{new Date(entry.grantedAt).toLocaleString()}</time>
-              </article>
-            ))}
-          </div>
+          <ProjectTableContainer className={styles.historyTable}>
+            <ProjectTable>
+              <thead><TableHead><th>회원</th><th>포켓볼</th><th>지급자</th><th>사유</th><th>지급 일시</th></TableHead></thead>
+              <tbody>{ballHistory.slice((ballHistoryPage - 1) * 20, ballHistoryPage * 20).map((entry) => (
+                <ProjectListRow key={entry.transactionId}>
+                  <td>{entry.memberName || entry.memberLoginID}</td>
+                  <td>{entry.ballType === 'MASTER' ? '마스터볼' : '포켓볼'} {entry.amount}개</td>
+                  <td>{entry.grantorName || '관리자'}<br /><small>{entry.grantSource === 'LEGACY_SQL' ? '기존 지급' : '기여자 지급'}</small></td>
+                  <td style={{ maxWidth: 280, whiteSpace: 'normal', wordBreak: 'break-word' }}>{entry.reason || '-'}</td>
+                  <td>{new Date(entry.grantedAt).toLocaleString('ko-KR')}</td>
+                </ProjectListRow>
+              ))}</tbody>
+            </ProjectTable>
+          </ProjectTableContainer>
         )}
         {ballHistory.length > 20 && <Pagination current={ballHistoryPage} pageSize={20} total={ballHistory.length} showSizeChanger={false} onChange={setBallHistoryPage} className={styles.historyPagination} />}
       </section>
       <section className={styles.historySection}>
         <h2 className={styles.title}>지급 기록</h2>
         {history.length === 0 ? <div className={styles.emptyState}>지급 기록이 없습니다.</div> : (
-          <div className={styles.historyList}>
-            {history.map((entry) => (
-              <article className={styles.historyItem} key={entry.drawId}>
-                {entry.spriteUrl && <img src={entry.spriteUrl} alt="" />}
-                <div><strong>{entry.memberName || entry.memberLoginID}</strong><span>{entry.pokemonName}{entry.shiny ? ' (이로치)' : ''}</span></div>
-                <div><span>{entry.grantorName}</span><small>{entry.grantSource === 'LEGACY_SQL' ? '기존 SQL 지급' : entry.grantSource === 'ADMIN' ? '관리자 지급' : '일반 뽑기'}</small></div>
-                <time>{new Date(entry.grantedAt).toLocaleString()}</time>
-              </article>
-            ))}
-          </div>
+          <ProjectTableContainer className={styles.historyTable}>
+            <ProjectTable>
+              <thead><TableHead><th>회원</th><th>포켓몬</th><th>지급자</th><th>사유</th><th>지급 일시</th></TableHead></thead>
+              <tbody>{history.map((entry) => (
+                <ProjectListRow key={entry.drawId}>
+                  <td>{entry.memberName || entry.memberLoginID}</td>
+                  <td><span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{entry.spriteUrl && <img src={entry.spriteUrl} alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />}{entry.pokemonName}{entry.shiny && <Tag color="gold">이로치</Tag>}</span></td>
+                  <td>{entry.grantorName}<br /><small>{entry.grantSource === 'LEGACY_SQL' ? '기존 지급' : entry.grantSource === 'ADMIN' ? '기여자 지급' : '일반 뽑기'}</small></td>
+                  <td style={{ maxWidth: 280, whiteSpace: 'normal', wordBreak: 'break-word' }}>{entry.reason || '-'}</td>
+                  <td>{new Date(entry.grantedAt).toLocaleString('ko-KR')}</td>
+                </ProjectListRow>
+              ))}</tbody>
+            </ProjectTable>
+          </ProjectTableContainer>
         )}
       </section>
       </>}
@@ -236,12 +256,12 @@ export default function AdminGamification() {
 
 const useStyles = createStyles(({ css }) => ({
   grantSection: css`width:100%; margin-bottom:32px;`,
-  grantForm: css`display:grid; grid-template-columns:1fr 1fr auto auto; align-items:end; gap:12px; margin-top:16px; label{display:flex; flex-direction:column; gap:7px; color:#6d6258; font-size:.82rem; font-weight:600;} @media(max-width:767px){grid-template-columns:1fr;}`,
+  grantForm: css`display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:end; gap:12px; margin-top:16px; label{display:flex; flex-direction:column; gap:7px; color:#6d6258; font-size:.82rem; font-weight:600;} @media(max-width:767px){grid-template-columns:1fr;}`,
+  grantReason: css`grid-column:1/-1; textarea{width:100%;}`,
+  grantActions: css`grid-column:1/-1; display:flex; justify-content:flex-end; button{margin:0;}`,
   shinyToggle: css`flex-direction:row!important; align-items:center; min-height:42px; white-space:nowrap; input{accent-color:#db6c58;}`,
   historySection: css`width:100%; margin-bottom:32px;`,
-  historyList: css`display:flex; flex-direction:column; margin-top:14px; border-top:1px solid #e9e3de;`,
-  historyItem: css`display:grid; grid-template-columns:48px 1fr 1fr auto; align-items:center; gap:12px; min-height:64px; border-bottom:1px solid #eee9e5; color:#4c3722; img{width:44px;height:44px;object-fit:contain;} div{display:flex;flex-direction:column;gap:3px;} span{font-size:.86rem;} small,time{color:#857b72;font-size:.75rem;} @media(max-width:767px){grid-template-columns:40px 1fr 1fr; time{grid-column:2/-1;}}`,
-  ballHistoryItem: css`grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; @media(max-width:767px){grid-template-columns:1fr 1fr; time{grid-column:1/-1;}}`,
+  historyTable: css`margin-top:14px;`,
   historyPagination: css`display:flex; justify-content:flex-end; margin-top:16px;`,
   header: css`display:flex; width:100%; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:18px; @media (max-width: 767px){align-items:stretch; flex-direction:column;}`,
   title: css`margin:0; color:#4c3722; font-size:1.75rem; font-weight:800; line-height:1.25;`,
