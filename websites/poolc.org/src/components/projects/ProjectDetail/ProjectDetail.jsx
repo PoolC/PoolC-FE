@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { DownloadOutlined } from '@ant-design/icons';
-import poolcIcon from '~/assets/images/poolc-icon.png';
 // FIXME: eslint issue 수정 필요. 터미널에서는 에러가 나지 않으나, 에디터에서만 에러가 나고 있음
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Viewer } from '@dialga/react-editor';
@@ -8,9 +7,6 @@ import MemberCard from '../../members/MemberCard/MemberCard';
 import {
   BodyContainer,
   Duration,
-  GameModal,
-  GameModalIcon,
-  GameModalTitle,
   GameActions,
   GamePlayButton,
   GameNewTabLink,
@@ -27,8 +23,8 @@ import {
   NameContainer,
   StyledImage,
   TextContainer,
-  GameFrame,
 } from './ProjectDetail.styles';
+import ProjectGameModal from '../ProjectGameModal/ProjectGameModal';
 import { PagePanel, PageShell } from '../../common/PageLayout/PageLayout';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
 import { isAuthorizedRole } from '../../../lib/utils/checkRole';
@@ -106,31 +102,7 @@ const ProjectDetail = ({ project, member }) => {
             )}
           </TextContainer>
         </Hero>
-        {gameURL && (
-          <GameModal
-            title={(
-              <GameModalTitle>
-                <GameModalIcon src={poolcIcon} alt="PoolC" />
-                <span>{name}</span>
-              </GameModalTitle>
-            )}
-            open={isGameModalOpen}
-            onCancel={() => setIsGameModalOpen(false)}
-            footer={null}
-            centered
-            destroyOnClose
-            width="min(1200px, calc(100vw - 32px), 160vh)"
-          >
-            <GameFrame
-              title={`${name} 게임`}
-              src={gameURL}
-              sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen"
-              allow="fullscreen; autoplay; gamepad"
-              allowFullScreen
-              referrerPolicy="no-referrer"
-            />
-          </GameModal>
-        )}
+        {gameURL && <ProjectGameModal name={name} gameURL={gameURL} open={isGameModalOpen} onClose={() => setIsGameModalOpen(false)} />}
         <IntroductionContainer>
           <Introduction>
             <BodyContainer className="here">

@@ -237,7 +237,7 @@ export const StyledLink = styled(Link)`
   }
 `;
 
-export const GamePlayLink = styled.a`
+export const GamePlayLink = styled.button`
   position: absolute;
   top: 20px;
   right: 20px;
@@ -252,9 +252,11 @@ export const GamePlayLink = styled.a`
   border-radius: 999px;
   background: rgba(28, 52, 46, 0.86);
   color: #fff;
+  font-family: inherit;
   font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
+  cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(4px);
   transition: background 0.18s ease, transform 0.18s ease;

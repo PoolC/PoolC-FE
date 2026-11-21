@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { PlayCircleFilled } from '@ant-design/icons';
 import { MENU } from '../../../constants/menus';
 import getImageVariantUrl from '../../../lib/utils/getImageVariantUrl';
+import ProjectGameModal from '../ProjectGameModal/ProjectGameModal';
 import {
   Card,
   ProjectCardBlock,
@@ -41,6 +43,7 @@ const getProjectThumbnail = ({ id, thumbnailURL }) => {
 const ProjectCard = ({ project, variant = 'default' }) => {
   const { id, thumbnailURL, name, genre, description, gameURL } = project;
   const { title, track } = splitProjectName(name);
+  const [isGameModalOpen, setIsGameModalOpen] = useState(false);
 
   return (
     <ProjectCardBlock data-variant={variant}>
@@ -70,12 +73,20 @@ const ProjectCard = ({ project, variant = 'default' }) => {
           </TextContent>
         </StyledLink>
         {variant === 'default' && gameURL && (
-          <GamePlayLink href={gameURL} target="_blank" rel="noopener noreferrer">
+          <GamePlayLink type="button" onClick={() => setIsGameModalOpen(true)}>
             <PlayCircleFilled aria-hidden="true" />
             <span>플레이하기</span>
           </GamePlayLink>
         )}
       </Card>
+      {variant === 'default' && gameURL && isGameModalOpen && (
+        <ProjectGameModal
+          name={title}
+          gameURL={gameURL}
+          open
+          onClose={() => setIsGameModalOpen(false)}
+        />
+      )}
     </ProjectCardBlock>
   );
 };
