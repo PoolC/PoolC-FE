@@ -15,6 +15,17 @@ const getProjectRequestErrorMessage = (error) => {
   return '오류가 발생했습니다';
 };
 
+const getMissingProjectFields = ({ name, category, genre, description, startDate, thumbnailURL, body }) => [
+  [name, '프로젝트 이름'],
+  [category, '카테고리'],
+  [genre, '장르'],
+  [description, '설명 요약'],
+  [startDate, '프로젝트 시작일'],
+  [thumbnailURL, '썸네일 이미지'],
+  [body, '프로젝트 내용'],
+].filter(([value]) => !String(value ?? '').trim())
+  .map(([, label]) => label);
+
 const AdminProjectFormContainer = ({ match, history }) => {
   const message = useMessage();
   const { projectID } = match.params;
@@ -37,8 +48,9 @@ const AdminProjectFormContainer = ({ match, history }) => {
   }, [projectID]);
 
   const onCreateProject = ({ name, thumbnailURL, genre, category, startDate, endDate, description, body, gameURL, downloadURL }) => {
-    if (!name || !category || !description || !startDate || !thumbnailURL || !body) {
-      setErrorMessage('모든 항목을 입력하세요');
+    const missingFields = getMissingProjectFields({ name, category, genre, description, startDate, thumbnailURL, body });
+    if (missingFields.length > 0) {
+      setErrorMessage(`입력하지 않은 항목: ${missingFields.join(', ')}`);
       onShowErrorModal();
       return;
     }
@@ -72,8 +84,9 @@ const AdminProjectFormContainer = ({ match, history }) => {
   };
 
   const onUpdateProject = ({ name, description, genre, category, startDate, endDate, thumbnailURL, body, gameURL, downloadURL }) => {
-    if (!name || !category || !description || !startDate || !thumbnailURL || !body) {
-      setErrorMessage('모든 항목을 입력하세요');
+    const missingFields = getMissingProjectFields({ name, category, genre, description, startDate, thumbnailURL, body });
+    if (missingFields.length > 0) {
+      setErrorMessage(`입력하지 않은 항목: ${missingFields.join(', ')}`);
       onShowErrorModal();
       return;
     }
