@@ -1,6 +1,6 @@
 import { BellOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Button, Dropdown, Space, Spin } from 'antd';
-import { ReactNode, useCallback } from 'react';
+import { Avatar, Badge, Button, Dropdown, Modal, Space, Spin } from 'antd';
+import { ReactNode, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { createStyles } from 'antd-style';
@@ -9,6 +9,8 @@ import { assert } from '~/lib/utils/assert';
 import { MENU } from '~/constants/menus';
 import { queryClient } from '~/lib/utils/queryClient';
 import { media } from '~/styles/responsive';
+import pokeballImage from '~/assets/images/pokeball.png';
+import masterBallImage from '~/assets/images/masterball.png';
 
 // CSS
 const useStyles = createStyles(({ css }) => ({
@@ -158,6 +160,7 @@ const convertDate = (inputDate: Date | string) => {
 // Components
 export default function Notification() {
   const { styles } = useStyles();
+  const [handledRewardIds, setHandledRewardIds] = useState<number[]>([]);
   const { data, isFetching } = useAppQuery({
     queryKey: queryKey.notification.unread,
     queryFn: async () => {
@@ -170,7 +173,7 @@ export default function Notification() {
       unreadCount: 0,
     },
   });
-  const { mutate: updateNotiReadStatus } = useAppMutation({
+  const { mutate: updateNotiReadStatus, isPending: isUpdatingReadStatus } = useAppMutation({
     mutationFn: NotificationControllerService.viewNotificationUsingPost,
   });
   const { mutate: updateAllNotiReadStatus, isPending: isPendingAllNotiRead } = useAppMutation({
@@ -181,6 +184,27 @@ export default function Notification() {
   // 스피너 용 변수
   const isSpinning = isFetching || isPendingAllNotiRead;
   const hasUnreadNotifications = (data.unreadCount ?? 0) > 0;
+  const activeReward = (data.responses ?? []).find((response) =>
+    (response.notificationType === 'POKEMON_REWARD' || response.notificationType === 'BALL_REWARD')
+    && response.notificationId !== undefined
+    && !handledRewardIds.includes(response.notificationId));
+  const activeRewardImage = activeReward?.notificationType === 'BALL_REWARD'
+    ? (activeReward.rewardBallType === 'MASTER' ? masterBallImage : pokeballImage)
+    : activeReward?.rewardImageUrl;
+
+  const handleRewardAcknowledge = () => {
+    if (!activeReward?.notificationId) return;
+    const notificationId = activeReward.notificationId;
+    updateNotiReadStatus(
+      { notificationId },
+      {
+        onSuccess() {
+          setHandledRewardIds((ids) => [...ids, notificationId]);
+          queryClient.invalidateQueries({ queryKey: queryKey.notification.unread });
+        },
+      },
+    );
+  };
 
   const Menu = useCallback(
     (menu: ReactNode) => (
@@ -242,6 +266,17 @@ export default function Notification() {
             </>
           ),
         };
+      case 'POKEMON_REWARD':
+      case 'BALL_REWARD':
+      {
+        const rewardSummary = response.notificationType === 'BALL_REWARD'
+          ? `${response.rewardName || '포켓볼'} ${response.rewardAmount ?? 1}개를 받았습니다.`
+          : `${response.rewardName || '포켓몬'}${response.rewardShiny ? ' (이로치)' : ''} ${response.rewardAmount ?? 1}마리를 받았습니다.`;
+        return {
+          link: `/${MENU.POKEMON}/${MENU.POKEMON_COLLECTION}`,
+          description: <p>{rewardSummary}</p>,
+        };
+      }
       // case 'RECOMMENT':
       //   return {
       //     link: response?.causedById ? `/board/${response?.causedById}` : `/board/${response.parentCommentId}`,
@@ -286,7 +321,37 @@ export default function Notification() {
       : [{ key: 'empty', disabled: true, label: <div className={styles.emptyState}><BellOutlined /><span>새로운 알림이 없습니다.</span></div> }];
 
   return (
-    <div>
+    <>
+      <Modal
+        open={Boolean(activeReward)}
+        centered
+        closable={false}
+        maskClosable={false}
+        keyboard={false}
+        title="보상을 받았어요!"
+        footer={<Button type="primary" loading={isUpdatingReadStatus} onClick={handleRewardAcknowledge}>확인</Button>}
+        width={480}
+      >
+        {activeReward && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '8px 0' }}>
+            {activeRewardImage && <img src={activeRewardImage} alt="" style={{ width: 104, height: 104, flex: '0 0 104px', objectFit: 'contain' }} />}
+            <div style={{ minWidth: 0, color: '#4c3722' }}>
+              <strong style={{ display: 'block', marginBottom: 6, fontSize: 18 }}>
+                {activeReward.rewardName}{activeReward.rewardShiny ? ' · 이로치' : ''}
+              </strong>
+              <div style={{ marginBottom: 12, color: '#31a987', fontWeight: 800 }}>
+                {activeReward.notificationType === 'BALL_REWARD'
+                  ? `${activeReward.rewardAmount ?? 1}개 받음`
+                  : `${activeReward.rewardAmount ?? 1}마리 받음`}
+              </div>
+              <div style={{ color: '#827971', fontSize: 13, lineHeight: 1.5, overflowWrap: 'anywhere' }}>
+                <b style={{ display: 'block', color: '#4c3722' }}>지급 사유</b>
+                {activeReward.rewardReason || '지급 사유 없음'}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
       <Dropdown menu={{ items: dropDownItems }} popupRender={Menu} placement="bottomRight" trigger={['click']} align={{ offset: [0, 8] }}>
         <Button shape="circle" className={styles.dropdownButton} aria-label="알림 열기">
           <Space size="large" className={styles.dropdownShape}>
@@ -296,6 +361,6 @@ export default function Notification() {
           </Space>
         </Button>
       </Dropdown>
-    </div>
+    </>
   );
 }
